@@ -1,0 +1,20 @@
+{
+
+  "manifest_version": 2,
+  "name": "Digital Stickynotes",
+  "version": "1.0",
+
+  "description": "Allows for the creation of digital stickynotes on the browser",
+
+  "icons": {
+    "48": "icons/border-48.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.mozilla.org/*"],
+      "js": ["extension.js"]
+    }
+  ]
+
+}
