@@ -13,6 +13,4 @@ function createTextbox() {
   var topPX = document.TxtBoxTop + 'px';
   box.style.left = leftPX;
   box.style.top = topPX;
-
-  console.log("boxedboxed");
 }
