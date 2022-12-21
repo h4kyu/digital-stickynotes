@@ -10,7 +10,6 @@ function getSelectionText() {
       newNode.style.backgroundColor = "green";
       newNode.style.display = "inline";
       range.surroundContents(newNode);
-      console.log("highlighted!!!");
     }
 
 
@@ -96,9 +95,6 @@ function getSelectionText() {
     text = window.getSelection().toString();
     // position relative to document
     pos = getCoords(window.getSelection().getRangeAt(0));
-    console.log(pos);
-
-    console.log(window.getSelection().getRangeAt(0));
 
     // highlightRange(window.getSelection().getRangeAt(0));
 
@@ -109,7 +105,6 @@ function getSelectionText() {
 
 
     document.body.style.border = "10px solid blue"
-    console.log(text);
 
 
     // highlightSelection();
@@ -119,7 +114,6 @@ function getSelectionText() {
     document.boxID = "foo";
     document.TxtBoxLeft = pos.left;
     document.TxtBoxTop = pos.top;
-    console.log(document.TxtBoxLeft, document.TxtBoxTop);
 
     // check whether highlighted text is empty
     if (text != '') {
