@@ -2,9 +2,12 @@
 function createTextbox() {
   var boxID = document.boxID;
   // setup box object
-  var box = document.createElement("input");
+  var box = document.createElement("textarea");
   box.type = "text";
   box.id = boxID;
+  box.autofocus = true;
+
+  // add to page
   document.body.appendChild(box);
 
   // set position of box
