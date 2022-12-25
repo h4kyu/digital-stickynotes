@@ -1,6 +1,15 @@
 document.body.style.border = "5px solid green";
 
-var selected_text_attributes = true;
+// clear local storage
+document.documentElement.addEventListener("keydown", (e) => {
+  if (e.key === 'c') {
+    browser.storage.local.clear();
+    console.log("storage cleared");
+  }
+});
+
+
+
 
 // run getSelectionText on click
 document.documentElement.addEventListener("click", (e) => {
@@ -11,16 +20,15 @@ document.documentElement.addEventListener("click", (e) => {
 document.documentElement.addEventListener("keydown", (e) => {
   if (e.key.toLowerCase() === 'n' && e.ctrlKey && e.shiftKey) {
     if (!selected_text) {
-      createTextbox();
-      document.getElementById(document.boxID).focus();
+      var boxID = crypto.randomUUID();
+      createTextbox(boxID);
+      document.getElementById(boxID).focus();
     }
   }
 });
 
 
 var mouseIsOver = false;
-
-var boxID = '';
 
 var mouseDown = false;
 
@@ -41,7 +49,6 @@ document.documentElement.addEventListener("mousemove", (ev) => {
 // check if mouse is down or up
 // var mouseDown = false;
 document.documentElement.addEventListener("mousedown", (event) => {
-  console.log("mousedown!!!");
   mouseDown = true;
   // check if cursor is over a textbox
   if (mouseIsOver) {
@@ -54,15 +61,12 @@ document.documentElement.addEventListener("mousedown", (event) => {
     var boxTopProper = cursorYInitial - boxTop;
     // move textbox
     interval = window.setInterval(function() {
-      console.log("ACTIVATED");
-      console.log(cursorX, cursorY);
       document.getElementById(boxID).blur();
       moveTextbox(boxID, cursorX - boxLeftProper, cursorY - boxTopProper);
     }, 10);
   }
 });
 document.documentElement.addEventListener("mouseup", (event) => {
-  console.log("mouseup!!!");
   mouseDown = false;
   // cancel interval
   window.clearInterval(interval);
@@ -71,7 +75,7 @@ document.documentElement.addEventListener("mouseup", (event) => {
 // move textbox with ID of boxID when cursor is above textbox and mouse is down
 document.documentElement.addEventListener("mouseover", (e) => {
   // check if mouse is over a textbox
-  if (e.target.type == "textarea") {
+  if (e.target.type === "textarea") {
     boxID = e.target.id;
     mouseIsOver = true;
   } else {

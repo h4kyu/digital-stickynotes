@@ -111,7 +111,6 @@ function getSelectionText() {
     // console.log("done");
 
     // create textbox attributes for selected text
-    document.boxID = "foo";
     document.TxtBoxLeft = pos.left;
     document.TxtBoxTop = pos.top;
 

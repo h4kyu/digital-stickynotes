@@ -15,6 +15,9 @@
       "matches": ["*://*.mozilla.org/*"],
       "js": ["functions/getCoords.js", "functions/getSelectionText.js", "functions/createTextbox.js", "functions/moveTextbox.js", "extension.js"]
     }
-  ]
+  ],
 
+  "permissions": [
+    "storage"
+  ]
 }
