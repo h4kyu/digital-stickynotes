@@ -6,10 +6,10 @@ function getSelectionText() {
 
     // highlight selected text
     function highlightRange(range) {
-      var newNode = document.createElement("div");
-      newNode.style.backgroundColor = "green";
-      newNode.style.display = "inline";
-      range.surroundContents(newNode);
+        var newNode = document.createElement("div");
+        newNode.style.backgroundColor = "green";
+        newNode.style.display = "inline";
+        range.surroundContents(newNode);
     }
 
 
@@ -116,7 +116,7 @@ function getSelectionText() {
 
     // check whether highlighted text is empty
     if (text != '') {
-      empty = false;
+        empty = false;
     }
 
     return text, empty;
