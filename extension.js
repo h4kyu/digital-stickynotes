@@ -12,21 +12,26 @@ document.documentElement.addEventListener("keydown", (e) => {
 
 let currentInFront = '';
 
+let currentMouseOver;
+
 let selected_text = '';
 
-let boxID = '';
+let interval;
+let intervalExists = false;
 
 let mouseIsOver = false;
 
 let mouseDown = false;
-
-let interval = '';
 
 let cursorX = 0;
 let cursorY = 0;
 
 let cursorXInitial = 0;
 let cursorYInitial = 0;
+let boxLeftOffset = 0;
+let boxTopOffset = 0;
+let boxLeftInitial = 0;
+let boxTopInitial = 0;
 
 
 // run getSelectionText on click
@@ -49,12 +54,25 @@ document.documentElement.addEventListener("keydown", (e) => {
 document.documentElement.addEventListener("mousemove", (ev) => {
     cursorX = ev.clientX + window.pageXOffset;
     cursorY = ev.clientY + window.pageYOffset;
+    if (mouseIsOver && mouseDown) {
+        // move textbox
+        if (!intervalExists) {
+            interval = window.setInterval(function() {
+                if (mouseDown && mouseIsOver) {
+                    currentMouseOver.blur();
+                    moveTextbox(currentMouseOver.id, cursorX - boxLeftOffset, cursorY - boxTopOffset);
+                }
+            }, 10);
+            intervalExists = true;
+        }
+    }
 });
+
 
 // check if mouse is over a textbox
 document.documentElement.addEventListener("mouseover", (e) => {
     if (e.target.type === "textarea") {
-        boxID = e.target.id;
+        currentMouseOver = e.target;
         mouseIsOver = true;
     } else {
         mouseIsOver = false;
@@ -72,11 +90,19 @@ document.documentElement.addEventListener("mousedown", (event) => {
     mouseDown = true;
     // check if cursor is over a textbox
     if (mouseIsOver) {
-        let box = document.getElementById(boxID);
+        let box = currentMouseOver;
+        cursorXInitial = event.clientX + window.pageXOffset;
+        cursorYInitial = event.clientY + window.pageYOffset;
+        // get box position relative to document
+        boxLeftInitial = parseInt(currentMouseOver.style.left);
+        boxTopInitial = parseInt(currentMouseOver.style.top);
+        boxLeftOffset = cursorXInitial - boxLeftInitial;
+        boxTopOffset = cursorYInitial - boxTopInitial;
         // pull textarea from background
-        if (document.getElementById(boxID).bged) {
+        if (box.bged) {
             box.style.background = 'black';
             box.style.color = 'white';
+            box.bged = false;
             // if currentInFront is empty
             if (currentInFront === '') {
                 currentInFront = box;
@@ -86,20 +112,11 @@ document.documentElement.addEventListener("mousedown", (event) => {
                 currentInFront.bged = true;
                 currentInFront = box;
             }
+        // if textarea is already pushed foward
+        } else {
+            currentInFront.focus();
         }
-        // get box position relative to document
-        let boxLeft = parseInt(document.getElementById(boxID).style.left);
-        let boxTop = parseInt(document.getElementById(boxID).style.top);
-        cursorXInitial = cursorX;
-        cursorYInitial = cursorY;
-        let boxLeftProper = cursorXInitial - boxLeft;
-        let boxTopProper = cursorYInitial - boxTop;
 
-        // move textbox
-        interval = window.setInterval(function() {
-            document.getElementById(boxID).blur();
-            moveTextbox(boxID, cursorX - boxLeftProper, cursorY - boxTopProper);
-            }, 10);
     } else {
         if (currentInFront !== '') {
             currentInFront.style.background = 'rgba(113,113,113, 0.5)';
@@ -120,6 +137,7 @@ document.documentElement.addEventListener("mouseup", (event) => {
     mouseDown = false;
     // cancel interval
     window.clearInterval(interval);
+    intervalExists = false;
 });
 
 // check if esc or enter are pressed
