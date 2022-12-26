@@ -1,12 +1,12 @@
 // gets selected text and its position relative to document
 function getSelectionText() {
-    var text = "";
-    var pos = "";
-    var empty = true;
+    let text = "";
+    let pos = "";
+    let empty = true;
 
     // highlight selected text
     function highlightRange(range) {
-        var newNode = document.createElement("div");
+        let newNode = document.createElement("div");
         newNode.style.backgroundColor = "green";
         newNode.style.display = "inline";
         range.surroundContents(newNode);
@@ -115,9 +115,9 @@ function getSelectionText() {
     document.TxtBoxTop = pos.top;
 
     // check whether highlighted text is empty
-    if (text != '') {
+    if (text !== '') {
         empty = false;
     }
 
-    return text, empty;
+    return [text, empty];
 }

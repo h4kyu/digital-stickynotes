@@ -1,6 +1,6 @@
 // move textbox with ID of boxID
 function moveTextbox(boxID, boxL, boxT) {
-    var box = document.getElementById(boxID);
+    let box = document.getElementById(boxID);
     // set textbox position to cursor position
     box.style.left = boxL + 'px';
     box.style.top = boxT + 'px';
@@ -15,9 +15,8 @@ function moveTextbox(boxID, boxL, boxT) {
                         // update top and left position
                         val[k][i][2] = document.getElementById(boxID).style.top;
                         val[k][i][3] = document.getElementById(boxID).style.left;
-                        var setVars = {};
+                        let setVars = {};
                         setVars[k] = val[k];
-                        console.log("UPDATED");
                         browser.storage.local.set(setVars);
                     }
                 }

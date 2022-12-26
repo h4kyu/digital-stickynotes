@@ -1,16 +1,15 @@
 // loads all textbox objects previously stored for this url
 function loadTextboxes() {
     // get attributes of stored boxes
-    var key = window.location.href;
-    var got = browser.storage.local.get(key).then(
+    let key = window.location.href;
+    let got = browser.storage.local.get(key).then(
             function(val) {
-                console.log("VALUE", val);
                 if (Object.keys(val).length !== 0) {
                     // iterate over textbox arrays
                     for (let i = 0; i < val[key].length; i++) {
                         let boxAttributes = val[key][i];
                         // setup box object
-                        var box = document.createElement("textarea");
+                        let box = document.createElement("textarea");
                         box.type = "text";
                         box.id = boxAttributes[0];
                         // set box size

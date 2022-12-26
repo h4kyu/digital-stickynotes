@@ -1,10 +1,12 @@
 // creates a textbox
 function createTextbox(boxID) {
     // setup box object
-    var box = document.createElement("textarea");
+    let box = document.createElement("textarea");
     box.type = "text";
     box.id = boxID;
     box.autofocus = true;
+    box.new = true;
+    box.bged = false;
     // set box size
     box.style.resize = 'none';
     box.style.height = '150px';
@@ -13,33 +15,41 @@ function createTextbox(boxID) {
     // keep the url that box is on
     box.url = window.location.href;
 
+    // testing color
+//    box.style.background = 'rgba(113,113,113, 0.5)';
+//    box.style.color = 'rgba(113,113,113, 0.5)';
+    box.style.fontFamily = "Comic Sans MS, cursive";
+    box.style.background = 'black';
+    box.style.color = 'white';
+
+
     // add to page
     document.body.appendChild(box);
 
     // set position of box
     box.style.position = 'absolute';
-    var leftPX = document.TxtBoxLeft + 'px';
-    var topPX = document.TxtBoxTop + 'px';
+    let leftPX = document.TxtBoxLeft + 'px';
+    let topPX = document.TxtBoxTop + 'px';
     box.style.left = leftPX;
     box.style.top = topPX;
 
     // add box to local storage
-    var boxAttributes = [box.id, box.value, box.style.top, box.style.left];
+    let boxAttributes = [box.id, box.value, box.style.top, box.style.left];
 
     const k = window.location.href;
 
-    var got = browser.storage.local.get(k).then(
+    let got = browser.storage.local.get(k).then(
             function(val) {
                 // if no key value pairs exist
                 if (Object.keys(val).length === 0) {
                     // set first key value pair
-                    var setVars = {};
+                    let setVars = {};
                     setVars[k] = [boxAttributes];
                     browser.storage.local.set(setVars);
                     // otherwise add to existing array of values
                 } else {
                     val[k].push(boxAttributes);
-                    var setVars = {};
+                    let setVars = {};
                     setVars[k] = val[k];
                     browser.storage.local.set(setVars);
                 }
