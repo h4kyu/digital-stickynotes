@@ -184,7 +184,7 @@ document.documentElement.addEventListener("keydown", (e) => {
         }
 
     // if enter is pressed while focusedElement is a textarea, blur off of it and push it to the background
-    } else if (e.key === "Enter") {
+    } else if (e.key === "Enter" && !e.shiftKey) {
         console.log("enter pressed");
         if (focusedElement.type === "textarea") {
             focusedElement.style.background = 'rgba(113,113,113, 0.5)';
