@@ -1,14 +1,6 @@
 document.body.style.border = "5px solid green";
 
-// load stored textboxes
-loadTextboxes();
-
-// clear local storage
-document.documentElement.addEventListener("keydown", (e) => {
-    if (e.key === 'c') {
-        browser.storage.local.clear();
-    }
-});
+const url = window.location.href;
 
 let currentInFront = '';
 
@@ -34,9 +26,23 @@ let boxLeftInitial = 0;
 let boxTopInitial = 0;
 
 
+// load stored textboxes
+loadTextboxes(url);
+
+// clear local storage
+document.documentElement.addEventListener("keydown", (e) => {
+    if (e.key === 'c') {
+        browser.storage.local.clear();
+    }
+});
+
 // run getSelectionText on click
 document.documentElement.addEventListener("click", (e) => {
     selected_text = getSelectionText();
+    // if delButton is clicked, delete container and remove from storage
+    if (e.target.nodeName === 'BUTTON') {
+        deleteTextbox(e.target.parentNode, url);
+    }
 });
 
 // run createTextbox when Ctrl Shift N is pressed, if text is highlighted
@@ -44,7 +50,7 @@ document.documentElement.addEventListener("keydown", (e) => {
     if (e.key.toLowerCase() === 'n' && e.ctrlKey && e.shiftKey) {
         if (!selected_text[1]) {
             let boxID = crypto.randomUUID();
-            createTextbox(boxID);
+            createTextbox(boxID, url);
             document.getElementById(boxID).focus();
         }
     }
@@ -60,7 +66,7 @@ document.documentElement.addEventListener("mousemove", (ev) => {
             interval = window.setInterval(function() {
                 if (mouseDown && mouseIsOver) {
                     currentMouseOver.blur();
-                    moveTextbox(currentMouseOver.id, cursorX - boxLeftOffset, cursorY - boxTopOffset);
+                    moveTextbox(currentMouseOver.id, cursorX - boxLeftOffset, cursorY - boxTopOffset, url);
                 }
             }, 10);
             intervalExists = true;
@@ -91,11 +97,12 @@ document.documentElement.addEventListener("mousedown", (event) => {
     // check if cursor is over a textbox
     if (mouseIsOver) {
         let box = currentMouseOver;
+        let container = currentMouseOver.parentNode;
         cursorXInitial = event.clientX + window.pageXOffset;
         cursorYInitial = event.clientY + window.pageYOffset;
         // get box position relative to document
-        boxLeftInitial = parseInt(currentMouseOver.style.left);
-        boxTopInitial = parseInt(currentMouseOver.style.top);
+        boxLeftInitial = parseInt(container.style.left);
+        boxTopInitial = parseInt(container.style.top);
         boxLeftOffset = cursorXInitial - boxLeftInitial;
         boxTopOffset = cursorYInitial - boxTopInitial;
         // pull textarea from background
@@ -103,6 +110,8 @@ document.documentElement.addEventListener("mousedown", (event) => {
             box.style.background = 'black';
             box.style.color = 'white';
             box.bged = false;
+            box.blur();
+//            shouldBeFocused = true;
             // if currentInFront is empty
             if (currentInFront === '') {
                 currentInFront = box;
@@ -144,32 +153,9 @@ document.documentElement.addEventListener("mouseup", (event) => {
 document.documentElement.addEventListener("keydown", (e) => {
     let focusedElement = document.activeElement;
     if (e.key === "Escape") {
-        console.log("esc pressed");
         // if focusedElement is a newly created textarea, delete textarea and remove from storage
         if (focusedElement.type === "textarea" && focusedElement.new) {
-            // remove from storage
-            const k = window.location.href;
-            let ID = focusedElement.id;
-            let got = browser.storage.local.get(k).then(
-                    function(val) {
-                        // iterate over array of box attributes to find box with boxID
-                        for (let i = 0; i < val[k].length; i++) {
-                            // check for box with ID
-                            if (val[k][i][0] === ID) {
-                                // remove box attributes array of box with ID
-                                val[k].splice(i, 1);
-                                let setVars = {};
-                                setVars[k] = val[k];
-                                browser.storage.local.set(setVars);
-                            }
-                        }
-                    },
-                    function(err) {
-                        console.log("ERROR", err);
-                    }
-                    );
-            // remove from document
-            focusedElement.remove();
+            deleteTextbox(focusedElement.parentNode, url);
         } else if (focusedElement.type === "textarea" && !focusedElement.new) {
             // blur off and push to background
             focusedElement.style.background = 'rgba(113,113,113, 0.5)';
@@ -185,7 +171,6 @@ document.documentElement.addEventListener("keydown", (e) => {
 
     // if enter is pressed while focusedElement is a textarea, blur off of it and push it to the background
     } else if (e.key === "Enter" && !e.shiftKey) {
-        console.log("enter pressed");
         if (focusedElement.type === "textarea") {
             focusedElement.style.background = 'rgba(113,113,113, 0.5)';
             focusedElement.style.color = 'rgba(113,113,113, 0.5)';
@@ -200,3 +185,27 @@ document.documentElement.addEventListener("keydown", (e) => {
         }
     }
 });
+
+// update stored input of textarea when its value changes
+document.addEventListener('input', (e) => {
+    // get textarea that was changed
+    let ID = e.target.id;
+    let got = browser.storage.local.get(url).then(
+            function(val) {
+                // iterate over array of box attributes to find box with ID
+                for (let i = 0; i < val[url].length; i++) {
+                    // check for box with boxID
+                    if (val[url][i][0] === ID) {
+                        // update input
+                        val[url][i][1] = e.target.value;
+                        let setVars = {};
+                        setVars[url] = val[url];
+                        browser.storage.local.set(setVars);
+                    }
+                }
+            },
+            function(err) {
+                console.log("ERROR", err);
+            }
+            );
+})

@@ -1,22 +1,21 @@
 // move textbox with ID of boxID
-function moveTextbox(boxID, boxL, boxT) {
-    let box = document.getElementById(boxID);
+function moveTextbox(boxID, boxL, boxT, url) {
+    let container = document.getElementById(boxID).parentNode;
     // set textbox position to cursor position
-    box.style.left = boxL + 'px';
-    box.style.top = boxT + 'px';
+    container.style.left = boxL + 'px';
+    container.style.top = boxT + 'px';
     // update textbox location in storage
-    const k = window.location.href;
-    let got = browser.storage.local.get(k).then(
+    let got = browser.storage.local.get(url).then(
             function(val) {
                 // iterate over array of box attributes to find box with boxID
-                for (let i = 0; i < val[k].length; i++) {
+                for (let i = 0; i < val[url].length; i++) {
                     // check for box with boxID
-                    if (val[k][i][0] === boxID) {
+                    if (val[url][i][0] === boxID) {
                         // update top and left position
-                        val[k][i][2] = document.getElementById(boxID).style.top;
-                        val[k][i][3] = document.getElementById(boxID).style.left;
+                        val[url][i][2] = container.style.top;
+                        val[url][i][3] = container.style.left;
                         let setVars = {};
-                        setVars[k] = val[k];
+                        setVars[url] = val[url];
                         browser.storage.local.set(setVars);
                     }
                 }
