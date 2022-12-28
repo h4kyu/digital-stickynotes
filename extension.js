@@ -28,11 +28,11 @@ let boxTopInitial = 0;
 loadTextboxes(url);
 
 // clear local storage
-document.documentElement.addEventListener("keydown", (e) => {
-    if (e.key === 'c') {
-        browser.storage.local.clear();
-    }
-});
+//document.documentElement.addEventListener("keydown", (e) => {
+//    if (e.key === 'c') {
+//        browser.storage.local.clear();
+//    }
+//});
 
 // run getSelectionText on click
 document.documentElement.addEventListener("click", (e) => {
