@@ -104,8 +104,6 @@ function getSelectionText() {
     // }
 
 
-    document.body.style.border = "10px solid blue"
-
 
     // highlightSelection();
     // console.log("done");

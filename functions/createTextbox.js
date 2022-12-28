@@ -2,47 +2,26 @@
 function createTextbox(boxID, url) {
     // setup box container
     let container = document.createElement("div");
-    container.style.position = 'absolute';
-    container.style.resize = 'none';
-    container.style.height = '150px';
-    container.style.width = '170px';
+
     // setup box object
     let box = document.createElement("textarea");
     box.type = "text";
     box.id = boxID;
-    box.autofocus = true;
     box.new = true;
     box.bged = false;
-    // set box size
-    box.style.resize = 'none';
-    box.style.fontSize = '13px';
     // keep the url that box is on
     box.url = window.location.href;
-
-    box.style.fontFamily = "Comic Sans MS, cursive";
-    box.style.background = 'black';
-    box.style.color = 'white';
-
-    // add box to container
-    container.appendChild(box);
-    box.style.width = '100%';
-    box.style.height = '100%';
-    box.style.boxSizing = 'border-box';
-
-    // set position of box
-//    box.style.position = 'absolute';
+    box.style.backgroundColor = 'yellow';
+    box.style.color = 'black';
+    box.style.border = 'solid 1px orange';
 
     // create button
     let delButton = document.createElement("BUTTON");
-    let delButtonSymbol = document.createTextNode('x');
-    delButton.appendChild(delButtonSymbol);
 
-    // add button to container
-    container.appendChild(delButton);
-    delButton.style.position = 'absolute';
-    delButton.style.right = '0px';
-    delButton.style.top = '0px';
+    // put elements together
+    initializeTextbox(container, box, delButton);
 
+    // set container position
     let leftPX = document.TxtBoxLeft + 'px';
     let topPX = document.TxtBoxTop + 'px';
     container.style.left = leftPX;
@@ -50,11 +29,11 @@ function createTextbox(boxID, url) {
 
     // add to page
     document.body.appendChild(container);
+    container.style.zIndex = 1000;
 
     // add box to local storage
     let boxAttributes = [box.id, box.value, container.style.top, container.style.left];
-
-    let got = browser.storage.local.get(url).then(
+    browser.storage.local.get(url).then(
             function(val) {
                 // if no key value pairs exist
                 if (Object.keys(val).length === 0) {

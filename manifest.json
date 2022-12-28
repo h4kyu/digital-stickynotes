@@ -12,8 +12,8 @@
 
     "content_scripts": [
         {
-            "matches": ["*://*.mozilla.org/*"],
-            "js": ["functions/getCoords.js", "functions/getSelectionText.js", "functions/createTextbox.js", "functions/moveTextbox.js", "functions/loadTextboxes.js", "functions/deleteTextbox.js", "extension.js"]
+            "matches": ["<all_urls>"],
+            "js": ["functions/getCoords.js", "functions/getSelectionText.js", "functions/createTextbox.js", "functions/moveTextbox.js", "functions/loadTextboxes.js", "functions/deleteTextbox.js", "functions/textboxToBackground.js", "functions/textboxToForeground.js", "functions/initializeTextbox.js", "extension.js"]
         }
     ],
 

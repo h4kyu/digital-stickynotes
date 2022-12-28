@@ -1,5 +1,3 @@
-document.body.style.border = "5px solid green";
-
 const url = window.location.href;
 
 let currentInFront = '';
@@ -107,18 +105,12 @@ document.documentElement.addEventListener("mousedown", (event) => {
         boxTopOffset = cursorYInitial - boxTopInitial;
         // pull textarea from background
         if (box.bged) {
-            box.style.background = 'black';
-            box.style.color = 'white';
-            box.bged = false;
-            box.blur();
-//            shouldBeFocused = true;
+            textboxToForeground(box);
             // if currentInFront is empty
             if (currentInFront === '') {
                 currentInFront = box;
             } else if (currentInFront !== box) {
-                currentInFront.style.background = 'rgba(113,113,113, 0.5)';
-                currentInFront.style.color = 'rgba(113,113,113, 0.5)';
-                currentInFront.bged = true;
+                textboxToBackground(currentInFront);
                 currentInFront = box;
             }
         // if textarea is already pushed foward
@@ -128,15 +120,11 @@ document.documentElement.addEventListener("mousedown", (event) => {
 
     } else {
         if (currentInFront !== '') {
-            currentInFront.style.background = 'rgba(113,113,113, 0.5)';
-            currentInFront.style.color = 'rgba(113,113,113, 0.5)';
-            currentInFront.bged = true;
+            textboxToBackground(currentInFront);
             currentInFront = '';
         }
         if (focusedElement.type === 'textarea') {
-            focusedElement.style.background = 'rgba(113,113,113, 0.5)';
-            focusedElement.style.color = 'rgba(113,113,113, 0.5)';
-            focusedElement.bged = true;
+            textboxToBackground(focusedElement);
         }
     }
 });
@@ -158,29 +146,19 @@ document.documentElement.addEventListener("keydown", (e) => {
             deleteTextbox(focusedElement.parentNode, url);
         } else if (focusedElement.type === "textarea" && !focusedElement.new) {
             // blur off and push to background
-            focusedElement.style.background = 'rgba(113,113,113, 0.5)';
-            focusedElement.style.color = 'rgba(113,113,113, 0.5)';
-            focusedElement.bged = true;
-            focusedElement.blur();
+            textboxToBackground(focusedElement);
         } else if (currentInFront !== '') {
-            currentInFront.style.background = 'rgba(113,113,113, 0.5)';
-            currentInFront.style.color = 'rgba(113,113,113, 0.5)';
-            currentInFront.bged = true;
+            textboxToBackground(currentInFront);
             currentInFront = '';
         }
 
     // if enter is pressed while focusedElement is a textarea, blur off of it and push it to the background
     } else if (e.key === "Enter" && !e.shiftKey) {
         if (focusedElement.type === "textarea") {
-            focusedElement.style.background = 'rgba(113,113,113, 0.5)';
-            focusedElement.style.color = 'rgba(113,113,113, 0.5)';
+            textboxToBackground(focusedElement);
             focusedElement.new = false;
-            focusedElement.bged = true;
-            focusedElement.blur();
         } else if (currentInFront !== '') {
-            currentInFront.style.background = 'rgba(113,113,113, 0.5)';
-            currentInFront.style.color = 'rgba(113,113,113, 0.5)';
-            currentInFront.bged = true;
+            textboxToBackground(currentInFront);
             currentInFront = '';
         }
     }
