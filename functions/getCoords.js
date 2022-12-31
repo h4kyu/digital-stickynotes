@@ -13,6 +13,10 @@ function getCoords(elem) { // crossbrowser version
 
     let top  = box.top +  scrollTop - clientTop;
     let left = box.left + scrollLeft - clientLeft;
+    let bottom = box.bottom;
+    let right = box.right;
+    let height = box.height;
+    let width = box.width;
 
-    return { top: Math.round(top), left: Math.round(left) };
+    return { top: Math.round(top), clientTop: Math.round(box.top), left: Math.round(left), bottom: Math.round(bottom), right: Math.round(right), height: Math.round(height), width: Math.round(width)};
 }

@@ -16,6 +16,9 @@ function loadTextboxes(url) {
                         box.type = "text";
                         box.id = boxAttributes[0];
                         box.new = false;
+
+                        let highlightBoxAttributes = boxAttributes[4];
+                        box.highlightBoxAttributes = highlightBoxAttributes;
                         textboxToBackground(box);
 
                         // set its previous text
@@ -24,11 +27,16 @@ function loadTextboxes(url) {
                         // keep the url that box is on
                         box.url = window.location.href;
 
-                        // create button
+                        // create delButton
                         let delButton = document.createElement("BUTTON");
+                        delButton.id = 'delButton';
+
+                        // create associationButton
+                        let associationButton = document.createElement("BUTTON");
+                        associationButton.id = 'associationButton';
 
                         // add elements together
-                        initializeTextbox(container, box, delButton);
+                        initializeTextbox(container, box, delButton, associationButton, highlightBoxAttributes);
 
                         // add to page
                         document.body.appendChild(container);
