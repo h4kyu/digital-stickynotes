@@ -15,7 +15,6 @@ function initializeTextbox(container, textarea, delButton, associationButton, hi
     textarea.style.borderRadius = '7px';
     textarea.style.width = '100%';
     textarea.style.height = '100%';
-    textarea.style.boxSizing = 'border-box';
     // delButton
     container.appendChild(delButton);
     delButton.style.width = '20px';

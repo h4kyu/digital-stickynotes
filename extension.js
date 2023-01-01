@@ -26,6 +26,16 @@ let selection;
 let allRanges = [];
 
 
+//let currentTab = browser.tabs.getCurrent().then(
+//        function(val) {
+//            console.log("currentTab", val);
+//            },
+//        function(err) {
+//            console.log("ERROR", err);
+//        });
+
+
+
 // load stored textboxes
 loadTextboxes(url);
 
@@ -408,3 +418,25 @@ document.addEventListener('input', (e) => {
             }
             );
 })
+
+// receive message from toolbar popup, then scroll to appropriate textbox position
+browser.runtime.onMessage.addListener((request) => {
+   window.scrollTo(request.scrollX, request.scrollY - 200);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

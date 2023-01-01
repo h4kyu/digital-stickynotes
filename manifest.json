@@ -13,19 +13,28 @@
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
-            "js": ["functions/getCoords.js", "functions/getSelectionText.js", "functions/createTextbox.js", "functions/moveTextbox.js", "functions/loadTextboxes.js", "functions/deleteTextbox.js", "functions/textboxToBackground.js", "functions/textboxToForeground.js", "functions/initializeTextbox.js", "extension.js"]
+            "js": ["functions/getCoords.js",
+                "functions/getSelectionText.js",
+                "functions/createTextbox.js",
+                "functions/moveTextbox.js",
+                "functions/loadTextboxes.js",
+                "functions/deleteTextbox.js",
+                "functions/textboxToBackground.js",
+                "functions/textboxToForeground.js",
+                "functions/initializeTextbox.js",
+                "extension.js"]
         }
     ],
 
     "permissions": [
-        "storage"
+        "storage",
+        "<all_urls>",
+        "tabs"
     ],
 
-    "background": {
-        "scripts": ["background.js"]
-    },
-
     "browser_action": {
+        "browser_style": true,
+        "default_popup": "popup/choose_page.html",
         "default_icon": {
             "16": "icons/page-16.png",
             "32": "icons/page-32.png"

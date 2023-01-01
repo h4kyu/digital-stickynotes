@@ -1,0 +1,14 @@
+html,
+body {
+    width: 400px;
+    height: 600px;
+    background-color: rgb(20, 20, 50);
+}
+
+.page-choice {
+    cursor: pointer;
+}
+
+.page-choice:hover {
+    background-color: white;
+}
