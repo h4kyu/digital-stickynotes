@@ -57,8 +57,8 @@ function initializeTextbox(container, textarea, delButton, associationButton, hi
         highlightBox.style.position = 'absolute';
         highlightBox.style.zIndex = 999;
         highlightBox.style.backgroundColor = 'rgba(50, 85, 120, 0.25)';
-        highlightBox.style.left = highlightBoxAttributes[0];
-        highlightBox.style.top = highlightBoxAttributes[1];
+        highlightBox.style.top = highlightBoxAttributes[0];
+        highlightBox.style.left = highlightBoxAttributes[1];
         highlightBox.style.height = highlightBoxAttributes[2];
         highlightBox.style.width = highlightBoxAttributes[3];
         highlightBox.style.borderRadius = '7px';

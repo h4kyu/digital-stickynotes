@@ -1,50 +1,73 @@
 // loads all textbox objects previously stored for this url
 function loadTextboxes(url) {
-    // get attributes of stored boxes
     let key = url;
-    browser.storage.local.get(key).then(
+    let textboxes = {};
+    browser.storage.local.get(key).then( // get attributes of stored boxes
             function(val) {
                 if (Object.keys(val).length !== 0) {
-                    // iterate over textbox arrays
-                    for (let i = 0; i < val[key].length; i++) {
+                    for (let i = 0; i < val[key].length; i++) { // iterate over textbox arrays
                         let boxAttributes = val[key][i];
+                        let id = boxAttributes[0];
+
                         // setup box container
                         let container = document.createElement("div");
+                        container.id = id;
 
                         // setup box object
-                        let box = document.createElement("textarea");
-                        box.type = "text";
-                        box.id = boxAttributes[0];
-                        box.new = false;
-
-                        let highlightBoxAttributes = boxAttributes[4];
-                        box.highlightBoxAttributes = highlightBoxAttributes;
-                        textboxToBackground(box);
-
-                        // set its previous text
-                        box.value = boxAttributes[1]
-
-                        // keep the url that box is on
-                        box.url = window.location.href;
+                        let textarea = document.createElement("textarea");
+                        textarea.type = "text";
+                        textarea.id = id;
+                        textarea.name = 'uniqueName';
+                        textarea.value = boxAttributes[1]; // set its previous text
 
                         // create delButton
                         let delButton = document.createElement("BUTTON");
-                        delButton.id = 'delButton';
+                        delButton.id = id;
+                        delButton.name = 'delButton';
 
                         // create associationButton
                         let associationButton = document.createElement("BUTTON");
-                        associationButton.id = 'associationButton';
+                        associationButton.id = id;
+                        associationButton.name = 'associationButton';
+
+                        // setup associated highlight
+                        let highlightBoxAttributes = boxAttributes[3];
+                        let highlightBox = null;
+                        if (highlightBoxAttributes[0] !== null) { // if associated highlight exists
+                            highlightBox = document.createElement('div');
+                            document.body.appendChild(highlightBox);
+                            highlightBox.style.position = 'absolute';
+                            highlightBox.style.zIndex = 999; // keep under textbox objects
+                            highlightBox.style.backgroundColor = 'rgba(50, 85, 120, 0.25)';
+                            highlightBox.style.left = highlightBoxAttributes[1];
+                            highlightBox.style.top = highlightBoxAttributes[0];
+                            highlightBox.style.height = highlightBoxAttributes[2];
+                            highlightBox.style.width = highlightBoxAttributes[3];
+                            highlightBox.style.borderRadius = '7px';
+                        }
 
                         // add elements together
-                        initializeTextbox(container, box, delButton, associationButton, highlightBoxAttributes);
+                        initializeTextbox(container, textarea, delButton, associationButton, null);
 
                         // add to page
                         document.body.appendChild(container);
                         container.style.zIndex = 1000;
 
                         // set position of container
-                        container.style.top = boxAttributes[2];
-                        container.style.left = boxAttributes[3];
+                        container.style.top = boxAttributes[2][0];
+                        container.style.left = boxAttributes[2][1];
+
+                        let textbox = {id: id,
+                            container: container,
+                            textarea: textarea,
+                            delButton: delButton,
+                            associationButton: associationButton,
+                            associatedHighlight: highlightBox,
+                            new: false}
+
+                        textboxes[id] = textbox;
+
+                        textboxToBackground(textbox);
                     }
                 }
             },
@@ -52,4 +75,5 @@ function loadTextboxes(url) {
                 console.log("ERROR", err);
             }
     );
+    return textboxes;
 }

@@ -1,427 +1,175 @@
+// TODO remove running code from global scope
+//(function () {
+//    // …
+//})();
+
 const url = window.location.href;
 
-let currentInFront = '';
+let currentSelected = null;
 
-let currentMouseOver;
-
-let interval;
-let intervalExists = false;
-
-let mouseIsOver = false;
+let currentMouseOver = null;
 
 let mouseDown = false;
 
 let cursorX = 0;
 let cursorY = 0;
 
-let cursorXInitial = 0;
-let cursorYInitial = 0;
-let boxLeftOffset = 0;
-let boxTopOffset = 0;
-let boxLeftInitial = 0;
-let boxTopInitial = 0;
+/* object with all textboxes on current page, of the form
+{id: {id: id,
+      container: container,
+      textarea: textarea,
+      delButton: delButton,
+      associationButton: associationButton,
+      associatedHighlight: associatedHighlight,
+      new: bool
+      }} */
+let textboxes = loadTextboxes(url); // load stored textboxes and update textboxes object
 
-let selection;
-
-let allRanges = [];
-
-
-//let currentTab = browser.tabs.getCurrent().then(
-//        function(val) {
-//            console.log("currentTab", val);
-//            },
-//        function(err) {
-//            console.log("ERROR", err);
-//        });
-
-
-
-// load stored textboxes
-loadTextboxes(url);
-
-document.body.focus();
-
-// clear local storage
-document.documentElement.addEventListener("keydown", (e) => {
+document.documentElement.addEventListener("keydown", (e) => { // clear local storage
     if (e.key === 'c') {
         browser.storage.local.clear();
     }
-//    if (e.key === 'p') {
-//        console.log(tempSelection);
-//        tempSelection.removeAllRanges();
-//        if (allRanges.length > 0) {
-//            for (let i = 0; i < allRanges.length; i++) {
-//                tempSelection.addRange(allRanges[i]);
-//            }
-//        }
-//    }
 });
 
-/*
-<span class="mw-page-title-main">Cy<div style="background-color: green;display:inline">press</div></span>
-*/
+//document.getElementById("fff").addEventListener()
 
-document.documentElement.addEventListener("click", (e) => {
+document.documentElement.addEventListener("click", (e) => { // handle click event
+    if (e.target.nodeName === 'BUTTON') { // if button object is clicked
+        let clickedButton = e.target;
+        let textbox = textboxes[clickedButton.id];
 
-    // get all ranges of user selection
-//    selection = window.getSelection();
-//    if (!selection.isCollapsed && temp) {
-//        tempSelection = selection;
-//
-//        allRanges = [];
-//        for (let i = 0; i < selection.rangeCount; i++) {
-//            allRanges.push(selection.getRangeAt(i));
-//        }
-//        temp = false;
-//    }
-
-
-    /* highlighting user seletion, not working but keep
-    let rangeCount = selection.rangeCount;
-    let allRanges = [];
-    for (let i = 0; i < rangeCount; i++) {
-        allRanges.push(selection.getRangeAt(i));
-    }
-    if (rangeCount > 0) {
-        {
-            // first range
-            const firstRange = selection.getRangeAt(0);
-            const parEl = firstRange.startContainer.parentElement;
-            const text = parEl.innerText;
-            if (parEl.innerText.length === 0) {
-                return;
-            }
-            const startOffset = firstRange.startOffset;
-            const endOffset = firstRange.endOffset;
-            if (parEl === firstRange.endContainer.parentElement) { // start and end of selection are in same element
-                parEl.innerHTML =
-                text.substring(0, startOffset) +
-                "<span style='background-color: green'>" +
-                text.substring(startOffset, endOffset) +
-                "</span>" +
-                text.substring(endOffset);
-            } else {
-                parEl.innerHTML =
-                text.substring(0, startOffset) +
-                "<span style='background-color: green'>" +
-                text.substring(startOffset) +
-                "</span>";
-            }
+        if (clickedButton.name === 'delButton') { // if button is delButton, delete textbox and remove from local storage
+            deleteTextbox(textbox, url);
         }
-
-        {
-            // last range
-            const lastRange = selection.getRangeAt(rangeCount - 1);
-            const parEl = lastRange.endContainer.parentElement;
-            const text = parEl.innerText;
-            if (parEl.innerText.length === 0) {
-                return;
-            }
-            const startOffset = lastRange.startOffset;
-            const endOffset = lastRange.endOffset;
-            if (parEl === lastRange.startContainer.parentElement) { // start and end of selection are in same element
-                parEl.innerHTML =
-                    text.substring(0, startOffset) +
-                    "<span style='background-color: green'>" +
-                    text.substring(startOffset, endOffset) +
-                    "</span>" +
-                    text.substring(endOffset);
-            } else {
-                parEl.innerHTML =
-                    "<span style='background-color: green'>" +
-                    text.substring(0, endOffset) +
-                    "</span>" +
-                    text.substring(endOffset);
-            }
-        }
-    }
-
-    document.querySelectorAll('*').forEach(function(node) {
-        const range = document.createRange();
-        range.selectNode(node);
-
-        for (let i = 0; i < rangeCount; i++) {
-            let curRange = allRanges[i];
-            const isStartAfter = (range.compareBoundaryPoints(Range.START_TO_START, curRange) >= 0);
-            const isEndBefore = (range.compareBoundaryPoints(Range.END_TO_END, curRange) <= 0);
-
-            if (isStartAfter && isEndBefore) {
-                if (node.hasChildNodes()) {
-                    for (let i = 0; i < node.childNodes.length; i++) {
-                        if (node.childNodes[i].nodeType === Node.TEXT_NODE) {
-                            const range = document.createRange();
-                            range.selectNode(node.childNodes[i]);
-                            let newNode = document.createElement("span");
-                            newNode.style.backgroundColor = "green";
-                            range.surroundContents(newNode);
-                        }
-                    }
-                }
-            }
-        }
-    });
-    */
-
-    // if delButton is clicked, delete container and remove from storage
-    if (e.target.nodeName === 'BUTTON') {
-        let container = e.target.parentNode;
-        let textarea = container.firstChild;
-        // if button is delButton, delete textbox
-        if (e.target.id === 'delButton') {
-            deleteTextbox(container, url);
-        }
-        // if button is associationButton,
-        else if (e.target.id === 'associationButton') {
+        else if (clickedButton.name === 'associationButton') { // if button is associationButton
             // get first and last range of user selection
             let selection = window.getSelection();
             if (selection.rangeCount >= 1) {
                 let firstRange = selection.getRangeAt(0);
                 let lastRange = selection.getRangeAt(selection.rangeCount - 1);
 
-                textboxToForeground(textarea);
-                currentInFront = textarea;
-                // create box around general area of user selection (top left corner to bottom right corner)
-                let posFirstRange = getCoords(firstRange);
-                let posLastRange = getCoords(lastRange);
+                // bring textbox to foreground
+                textboxToForeground(textbox);
+                currentSelected = textbox;
 
-                // get coordinates for box placement
-                let top = posFirstRange.top;
-                let left = posFirstRange.left;
-                let width = Math.max(posFirstRange.width, posLastRange.width);
-                let height = posLastRange.bottom - posFirstRange.clientTop;
+                // create box around general area of user selection
+                createAssociatedHighlight(textbox, firstRange, lastRange);
 
-                // create the overlapping box
-                let highlightBox = document.createElement('div');
-                textarea.highlightBox = highlightBox;
-                document.body.appendChild(highlightBox);
-                highlightBox.style.position = 'absolute';
-                highlightBox.style.zIndex = 999;
-                highlightBox.style.backgroundColor = 'rgba(120, 120, 190, 0.5)';
-                highlightBox.style.left = left + 'px';
-                highlightBox.style.top = top + 'px';
-                highlightBox.style.height = height + 'px';
-                highlightBox.style.width = width + 'px';
-                highlightBox.style.borderRadius = '7px';
-
-                // add to textarea and save to storage
-                textarea.highlightBoxAttributes = [highlightBox.style.left,
-                                                   highlightBox.style.top,
-                                                   highlightBox.style.height,
-                                                   highlightBox.style.width];
-                // get textarea that was changed
-                let ID = textarea.id;
-                let got = browser.storage.local.get(url).then(
-                        function(val) {
-                            // iterate over array of box attributes to find box with ID
-                            for (let i = 0; i < val[url].length; i++) {
-                                // check for box with boxID
-                                if (val[url][i][0] === ID) {
-                                    // update highlightBox
-                                    val[url][i][4] = textarea.highlightBoxAttributes; // need to redo, can't save object
-                                    let setVars = {};
-                                    setVars[url] = val[url];
-                                    browser.storage.local.set(setVars);
-                                }
-                            }
-                        },
-                        function(err) {
-                            console.log("ERROR", err);
-                        }
-                        );
+                // save associated highlight to local storage
+                updateStorage(textbox, 3, url);
 
                 selection.removeAllRanges();
             }
-
-//            selection = window.getSelection();
-//            if (!selection.isCollapsed) {
-//                for (let i = 0; i < selection.rangeCount; i++) {
-//                    textarea.associatedSelection.push(selection.getRangeAt(i));
-//                }
-//            }
-        }
-    }
-
-//    if (e.target.type === 'textarea') {
-//        let box = e.target;
-//        // pull textarea from background
-//        if (box.bged) {
-//            textboxToForeground(box);
-//            // select and highlight associatedSelection of box
-////            if (box.associatedSelection !== null) {
-////                let tempSelection = window.getSelection();
-////                tempSelection.removeAllRanges();
-////                for (let i = 0; i < box.associatedSelection.length; i++) {
-////                    tempSelection.addRange(box.associatedSelection[i]);
-////                }
-////            }
-//            // if currentInFront is empty
-//            if (currentInFront === '') {
-//                currentInFront = box;
-//            } else if (currentInFront !== box) {
-//                textboxToBackground(currentInFront);
-//                currentInFront = box;
-//            }
-//            // if textarea is already pushed foward
-//        } else {
-//            currentInFront.focus();
-//        }
-//    }
-});
-
-// get cursor position relative to document when cursor moves
-document.documentElement.addEventListener("mousemove", (ev) => {
-    cursorX = ev.clientX + window.pageXOffset;
-    cursorY = ev.clientY + window.pageYOffset;
-    if (mouseIsOver && mouseDown) {
-        // move textbox
-        if (!intervalExists) {
-            interval = window.setInterval(function() {
-                if (mouseDown && mouseIsOver) {
-                    currentMouseOver.blur();
-                    moveTextbox(currentMouseOver.id, cursorX - boxLeftOffset, cursorY - boxTopOffset, url);
-                }
-            }, 10);
-            intervalExists = true;
         }
     }
 });
 
+document.documentElement.addEventListener("mousemove", (e) => { // handle mousemove event
+    // keep cursor position updated
+    cursorX = e.clientX + window.pageXOffset;
+    cursorY = e.clientY + window.pageYOffset;
 
-// check if mouse is over a textbox
-document.documentElement.addEventListener("mouseover", (e) => {
+    if (currentMouseOver !== null && mouseDown) { // move textbox
+        let box = textboxes[currentMouseOver.id];
+        let movementX = e.movementX;
+        let movementY = e.movementY;
+        moveTextbox(box, movementX, movementY, url);
+    }
+});
+
+
+document.documentElement.addEventListener("mouseover", (e) => { // handle mouseover event
+    // check if mouse is over a textbox
     if (e.target.type === "textarea") {
         currentMouseOver = e.target;
-        mouseIsOver = true;
     } else {
-        mouseIsOver = false;
+        currentMouseOver = null;
     }
 });
 
-// check if mouse is down
-document.documentElement.addEventListener("mousedown", (event) => {
-    // do the same thing as pressing enter when focus is on textarea
+document.documentElement.addEventListener("mousedown", (e) => { // handle mousedown event
+    mouseDown = true;
+
+    // update new property of box
     let focusedElement = document.activeElement;
     if (focusedElement.type === 'textarea') {
-        focusedElement.new = false;
+        let box = textboxes[focusedElement.id];
+        box.new = false;
     }
 
-    mouseDown = true;
-    // check if cursor is over a textbox
-    if (mouseIsOver) {
-        let box = currentMouseOver;
-        let container = currentMouseOver.parentNode;
-        cursorXInitial = event.clientX + window.pageXOffset;
-        cursorYInitial = event.clientY + window.pageYOffset;
-        // get box position relative to document
-        boxLeftInitial = parseInt(container.style.left);
-        boxTopInitial = parseInt(container.style.top);
-        boxLeftOffset = cursorXInitial - boxLeftInitial;
-        boxTopOffset = cursorYInitial - boxTopInitial;
+    // check if cursor is over a box
+    if (currentMouseOver !== null) {
+        let box = textboxes[currentMouseOver.id];
 
-            // pull textarea from background
-        if (box.bged) {
-            textboxToForeground(box);
-            // select and highlight associatedSelection of box
-            //            if (box.associatedSelection !== null) {
-            //                let tempSelection = window.getSelection();
-            //                tempSelection.removeAllRanges();
-            //                for (let i = 0; i < box.associatedSelection.length; i++) {
-            //                    tempSelection.addRange(box.associatedSelection[i]);
-            //                }
-            //            }
-            // if currentInFront is empty
-            if (currentInFront === '') {
-                currentInFront = box;
-            } else if (currentInFront !== box) {
-                textboxToBackground(currentInFront);
-                currentInFront = box;
-            }
-        // if textarea is already pushed foward
-        } else {
-            currentInFront.focus();
+        // pull box from background
+        textboxToForeground(box);
+
+        // if currentSelected is empty
+        if (currentSelected === null) {
+            currentSelected = box;
+        } else if (currentSelected !== box) {
+            textboxToBackground(currentSelected);
+            currentSelected = box;
         }
     } else {
-        if (currentInFront !== '') {
-            textboxToBackground(currentInFront);
-            currentInFront = '';
+        if (currentSelected !== null) {
+            textboxToBackground(currentSelected);
+            currentSelected = null;
         }
         if (focusedElement.type === 'textarea') {
-            textboxToBackground(focusedElement);
+            let box = textboxes[focusedElement.id];
+            textboxToBackground(box);
         }
     }
 });
 
-// check if mouse is down
-document.documentElement.addEventListener("mouseup", (event) => {
+document.documentElement.addEventListener("mouseup", (e) => { // handle mouseup event
     mouseDown = false;
-    // cancel interval
-    window.clearInterval(interval);
-    intervalExists = false;
 });
 
-// check if esc or enter are pressed
-document.documentElement.addEventListener("keydown", (e) => {
-    // run createTextbox when Ctrl Shift N is pressed
-    if (e.key.toLowerCase() === 'n' && e.ctrlKey && e.shiftKey) {
-        let boxID = crypto.randomUUID();
-        if (currentInFront !== '') {
-            currentInFront.blur();
+document.documentElement.addEventListener("keydown", (e) => { // handle keydown event
+    if (e.key.toLowerCase() === 'n' && e.ctrlKey && e.shiftKey) { // if Ctrl Shift N is pressed
+        let id = crypto.randomUUID(); // unique id for box
+        // newly created box to foreground
+        if (currentSelected !== null) {
+            textboxToBackground(currentSelected);
         }
-        currentInFront = createTextbox(boxID, cursorX, cursorY, url).textarea;
-        currentInFront.focus();
+        currentSelected = createTextbox(id, cursorX, cursorY, url);
+        textboxes[id] = currentSelected;
+        currentSelected.textarea.focus();
     }
+
     let focusedElement = document.activeElement;
-    if (e.key === "Escape") {
-        // if focusedElement is a newly created textarea, delete textarea and remove from storage
-        if (focusedElement.type === "textarea" && focusedElement.new) {
-            deleteTextbox(focusedElement.parentNode, url);
-        } else if (focusedElement.type === "textarea" && !focusedElement.new) {
-            // blur off and push to background
-            textboxToBackground(focusedElement);
-        } else if (currentInFront !== '') {
-            textboxToBackground(currentInFront);
-            currentInFront = '';
+    if (focusedElement.type === 'textarea') {
+        let box = textboxes[focusedElement.id];
+        if (e.key === 'Escape') {
+            if (box.new) { // if textbox is new, delete it
+                deleteTextbox(box, url);
+            } else { // if textbox is not new, push it to background
+                textboxToBackground(box);
+            }
+        } else if (e.key === 'Enter' && !e.shiftKey) {
+            textboxToBackground(box);
+            box.new = false;
         }
-
-    // if enter is pressed while focusedElement is a textarea, blur off of it and push it to the background
-    } else if (e.key === "Enter" && !e.shiftKey) {
-        if (focusedElement.type === "textarea") {
-            textboxToBackground(focusedElement);
-            focusedElement.new = false;
-        } else if (currentInFront !== '') {
-            textboxToBackground(currentInFront);
-            currentInFront = '';
+    } else if (currentSelected !== null) { // if no textarea is focused but a box is in foreground
+        if (e.key === 'Escape' || e.key === 'Enter' && !e.shiftKey) {
+            textboxToBackground(currentSelected);
+            currentSelected = null;
         }
     }
 });
 
-// update stored input of textarea when its value changes
-document.addEventListener('input', (e) => {
-    // get textarea that was changed
-    let ID = e.target.id;
-    let got = browser.storage.local.get(url).then(
-            function(val) {
-                // iterate over array of box attributes to find box with ID
-                for (let i = 0; i < val[url].length; i++) {
-                    // check for box with boxID
-                    if (val[url][i][0] === ID) {
-                        // update input
-                        val[url][i][1] = e.target.value;
-                        let setVars = {};
-                        setVars[url] = val[url];
-                        browser.storage.local.set(setVars);
-                    }
-                }
-            },
-            function(err) {
-                console.log("ERROR", err);
-            }
-            );
+document.addEventListener('input', (e) => { // handle input event
+    if (e.target.name === 'uniqueName') { // update stored input of textarea when its value changes
+        let box = textboxes[e.target.id];
+        updateStorage(box, 1, url);
+    }
 })
 
 // receive message from toolbar popup, then scroll to appropriate textbox position
 browser.runtime.onMessage.addListener((request) => {
-   window.scrollTo(request.scrollX, request.scrollY - 200);
+   window.scrollTo(0, request.scrollY - 200);
 });
 
 

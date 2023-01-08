@@ -1,14 +1,11 @@
 // deletes textbox from document and removes from storage
-function deleteTextbox(container, url) {
-    let textarea = container.firstChild;
-    let textareaID = textarea.id;
+function deleteTextbox(textbox, url) {
+    let id = textbox.id;
     browser.storage.local.get(url).then(
             function(val) {
-                // iterate over array of box attributes to find box with boxID
+                // iterate over array of box attributes to find box with id
                 for (let i = 0; i < val[url].length; i++) {
-                    // check for box with ID
-                    if (val[url][i][0] === textareaID) {
-                        // remove box attributes array of box with ID
+                    if (val[url][i][0] === id) { // remove box attributes array of box with id
                         val[url].splice(i, 1);
                         let setVars = {};
                         setVars[url] = val[url];
@@ -22,8 +19,8 @@ function deleteTextbox(container, url) {
             }
     );
     // remove from document
-    if (textarea.highlightBox) {
-        textarea.highlightBox.remove();
+    if (textbox.associatedHighlight !== null) {
+        textbox.associatedHighlight.remove();
     }
-    container.remove();
+    textbox.container.remove();
 }
