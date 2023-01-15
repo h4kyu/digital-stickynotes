@@ -14,92 +14,53 @@ let mouseDown = false;
 let cursorX = 0;
 let cursorY = 0;
 
-/* object with all textboxes on current page, of the form
-{id: {id: id,
-      container: container,
-      textarea: textarea,
-      delButton: delButton,
-      associationButton: associationButton,
-      associatedHighlight: associatedHighlight,
-      new: bool
-      }} */
-let textboxes = loadTextboxes(url); // load stored textboxes and update textboxes object
-
-document.documentElement.addEventListener("keydown", (e) => { // clear local storage
-    if (e.key === 'c') {
-        browser.storage.local.clear();
+function main(textboxes) {
+    for (const [key, value] of Object.entries(textboxes)) {
+        value.textarea.addEventListener('mousedown', handleMousedown);
+        value.textarea.addEventListener('mouseup', handleMouseup);
+        value.textarea.addEventListener('input', handleInput);
+        value.delButton.addEventListener('click', handleDelPress);
+        value.associationButton.addEventListener('click', handleAssociationPress);
     }
-});
 
-//document.getElementById("fff").addEventListener()
+    document.documentElement.addEventListener("mousemove", (e) => { // handle mousemove event
+        // keep cursor position updated
+        cursorX = e.clientX + window.pageXOffset;
+        cursorY = e.clientY + window.pageYOffset;
+    });
 
-document.documentElement.addEventListener("click", (e) => { // handle click event
-    if (e.target.nodeName === 'BUTTON') { // if button object is clicked
-        let clickedButton = e.target;
-        let textbox = textboxes[clickedButton.id];
 
-        if (clickedButton.name === 'delButton') { // if button is delButton, delete textbox and remove from local storage
-            deleteTextbox(textbox, url);
+    document.documentElement.addEventListener("mouseover", (e) => { // handle mouseover event
+        // check if mouse is over a textbox
+        if (e.target.type === "textarea") {
+            currentMouseOver = textboxes[e.target.id];
+        } else{
+            currentMouseOver = null;
         }
-        else if (clickedButton.name === 'associationButton') { // if button is associationButton
-            // get first and last range of user selection
-            let selection = window.getSelection();
-            if (selection.rangeCount >= 1) {
-                let firstRange = selection.getRangeAt(0);
-                let lastRange = selection.getRangeAt(selection.rangeCount - 1);
+    });
 
-                // bring textbox to foreground
-                textboxToForeground(textbox);
-                currentSelected = textbox;
+    document.documentElement.addEventListener("mousedown", function() { // handle mousedown event
+        //    mouseDown = true;
 
-                // create box around general area of user selection
-                createAssociatedHighlight(textbox, firstRange, lastRange);
-
-                // save associated highlight to local storage
-                updateStorage(textbox, 3, url);
-
-                selection.removeAllRanges();
+        if (currentMouseOver === null) {
+            // update new property of box
+            let focusedElement = document.activeElement;
+            if (focusedElement.type === 'textarea') {
+                let box = textboxes[focusedElement.id];
+                box.new = false;
+                textboxToBackground(box);
+            }
+            if (currentSelected !== null) {
+                textboxToBackground(currentSelected);
+                currentSelected = null;
             }
         }
-    }
-});
+    });
 
-document.documentElement.addEventListener("mousemove", (e) => { // handle mousemove event
-    // keep cursor position updated
-    cursorX = e.clientX + window.pageXOffset;
-    cursorY = e.clientY + window.pageYOffset;
+    function handleMousedown(event) {
+        mouseDown = true;
 
-    if (currentMouseOver !== null && mouseDown) { // move textbox
-        let box = textboxes[currentMouseOver.id];
-        let movementX = e.movementX;
-        let movementY = e.movementY;
-        moveTextbox(box, movementX, movementY, url);
-    }
-});
-
-
-document.documentElement.addEventListener("mouseover", (e) => { // handle mouseover event
-    // check if mouse is over a textbox
-    if (e.target.type === "textarea") {
-        currentMouseOver = e.target;
-    } else {
-        currentMouseOver = null;
-    }
-});
-
-document.documentElement.addEventListener("mousedown", (e) => { // handle mousedown event
-    mouseDown = true;
-
-    // update new property of box
-    let focusedElement = document.activeElement;
-    if (focusedElement.type === 'textarea') {
-        let box = textboxes[focusedElement.id];
-        box.new = false;
-    }
-
-    // check if cursor is over a box
-    if (currentMouseOver !== null) {
-        let box = textboxes[currentMouseOver.id];
+        let box = textboxes[event.target.id];
 
         // pull box from background
         textboxToForeground(box);
@@ -111,80 +72,130 @@ document.documentElement.addEventListener("mousedown", (e) => { // handle moused
             textboxToBackground(currentSelected);
             currentSelected = box;
         }
-    } else {
-        if (currentSelected !== null) {
-            textboxToBackground(currentSelected);
-            currentSelected = null;
-        }
-        if (focusedElement.type === 'textarea') {
-            let box = textboxes[focusedElement.id];
-            textboxToBackground(box);
-        }
-    }
-});
 
-document.documentElement.addEventListener("mouseup", (e) => { // handle mouseup event
-    mouseDown = false;
-});
-
-document.documentElement.addEventListener("keydown", (e) => { // handle keydown event
-    if (e.key.toLowerCase() === 'n' && e.ctrlKey && e.shiftKey) { // if Ctrl Shift N is pressed
-        let id = crypto.randomUUID(); // unique id for box
-        // newly created box to foreground
-        if (currentSelected !== null) {
-            textboxToBackground(currentSelected);
-        }
-        currentSelected = createTextbox(id, cursorX, cursorY, url);
-        textboxes[id] = currentSelected;
-        currentSelected.textarea.focus();
+        box.textarea.onmousemove = handleDrag;
     }
 
-    let focusedElement = document.activeElement;
-    if (focusedElement.type === 'textarea') {
-        let box = textboxes[focusedElement.id];
-        if (e.key === 'Escape') {
-            if (box.new) { // if textbox is new, delete it
-                deleteTextbox(box, url);
-            } else { // if textbox is not new, push it to background
-                textboxToBackground(box);
-            }
-        } else if (e.key === 'Enter' && !e.shiftKey) {
-            textboxToBackground(box);
-            box.new = false;
-        }
-    } else if (currentSelected !== null) { // if no textarea is focused but a box is in foreground
-        if (e.key === 'Escape' || e.key === 'Enter' && !e.shiftKey) {
-            textboxToBackground(currentSelected);
-            currentSelected = null;
+    function handleMouseup() {
+        mouseDown = false;
+    }
+
+    function handleDrag(event) {
+        if (mouseDown) {
+            let box = textboxes[event.target.id];
+            let movementX = event.movementX;
+            let movementY = event.movementY;
+            moveTextbox(box, movementX, movementY, url);
         }
     }
-});
 
-document.addEventListener('input', (e) => { // handle input event
-    if (e.target.name === 'uniqueName') { // update stored input of textarea when its value changes
-        let box = textboxes[e.target.id];
+    function handleInput(event) {
+        let box = textboxes[event.target.id];
         updateStorage(box, 1, url);
     }
-})
+
+    function handleDelPress(event) {
+        let box = textboxes[event.target.id];
+        deleteTextbox(box, url);
+    }
+
+    function handleAssociationPress(event) {
+        let box = textboxes[event.target.id];
+        // get first and last range of user selection
+        let selection = window.getSelection();
+        if (selection.rangeCount >= 1) {
+            let firstRange = selection.getRangeAt(0);
+            let lastRange = selection.getRangeAt(selection.rangeCount - 1);
+
+            // bring textbox to foreground
+            textboxToForeground(box);
+            currentSelected = box;
+
+            // create box around general area of user selection
+            createAssociatedHighlight(box, firstRange, lastRange);
+
+            // save associated highlight to local storage
+            updateStorage(box, 3, url);
+
+            selection.removeAllRanges();
+        }
+    }
+
+    function handleDropdownPress(event) {
+        let dropdownButton = event.target;
+        if (dropdownButton.state) { // state is 1 (DROPPED)
+            console.log('a');
+        } else { // state is 0 (COLLAPSED)
+            console.log('b');
+        }
+    }
+
+    document.documentElement.addEventListener("keydown", (e) => { // handle keydown event
+        if (e.key === 'c') { // clear local storage
+            browser.storage.local.clear();
+        }
+
+        if (e.key.toLowerCase() === 'n' && e.ctrlKey && e.shiftKey) { // if Ctrl Shift N is pressed
+            let id = crypto.randomUUID(); // unique id for box
+            // newly created box to foreground
+            if (currentSelected !== null) {
+                textboxToBackground(currentSelected);
+            }
+            currentSelected = createTextbox(id, cursorX, cursorY, url);
+            currentSelected.textarea.addEventListener('mousedown', handleMousedown);
+            currentSelected.textarea.addEventListener('mouseup', handleMouseup);
+            currentSelected.textarea.addEventListener('input', handleInput);
+            currentSelected.delButton.addEventListener('click', handleDelPress);
+            currentSelected.associationButton.addEventListener('click', handleAssociationPress);
+            currentSelected.dropdownButton.addEventListener('click', handleDropdownPress);
+            textboxes[id] = currentSelected;
+            currentSelected.textarea.focus();
+        }
+
+        let focusedElement = document.activeElement;
+        if (focusedElement.type === 'textarea') {
+            let box = textboxes[focusedElement.id];
+            if (e.key === 'Escape') {
+                if (box.new) { // if textbox is new, delete it
+                    deleteTextbox(box, url);
+                } else { // if textbox is not new, push it to background
+                    textboxToBackground(box);
+                }
+            } else if (e.key === 'Enter' && !e.shiftKey) {
+                textboxToBackground(box);
+                box.new = false;
+            }
+        } else if (currentSelected !== null) { // if no textarea is focused but a box is in foreground
+            if (e.key === 'Escape' || e.key === 'Enter' && !e.shiftKey) {
+                textboxToBackground(currentSelected);
+                currentSelected = null;
+            }
+        }
+    });
+}
+
+/* object with all textboxes on current page, of the form
+{id: {id: id,
+      container: container,
+      textarea: textarea,
+      delButton: delButton,
+      associationButton: associationButton,
+      associatedHighlight: associatedHighlight,
+      new: bool
+      }} */
+let key = url;
+let textboxes = {};
+browser.storage.local.get(key).then( // get attributes of stored boxes
+    function(val) {
+        textboxes = loadTextboxes(val, url);
+        main(textboxes);
+    },
+    function(err) {
+        console.log("ERROR", err);
+    }
+);
 
 // receive message from toolbar popup, then scroll to appropriate textbox position
 browser.runtime.onMessage.addListener((request) => {
    window.scrollTo(0, request.scrollY - 200);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

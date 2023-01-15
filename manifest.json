@@ -33,6 +33,11 @@
         "tabs"
     ],
 
+    "web_accessible_resources": [
+        "icons/close.png",
+        "icons/dropdown.png"
+    ],
+
     "browser_action": {
         "browser_style": true,
         "default_popup": "popup/choose_page.html",

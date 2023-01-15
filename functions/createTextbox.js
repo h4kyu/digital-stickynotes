@@ -8,10 +8,51 @@ function createTextbox(id, posX, posY, url) {
     let textarea = document.createElement("textarea");
     textarea.type = "text";
     textarea.id = id;
-    textarea.name = 'uniqueName';
     textarea.style.backgroundColor = 'rgba(110, 120, 150, 0.95)';
     textarea.style.color = 'aliceblue';
     textarea.style.border = 'solid 1px lightblue';
+    textarea.style.boxSizing = 'border-box';
+
+    // TEST
+    textarea.addEventListener('input', function (event) {
+        let textarea = event.target;
+        let container = textarea.parentElement;
+        // let offset = textarea.offsetHeight - textarea.clientHeight;
+        // let span = document.createElement('span');
+        // document.body.appendChild(span);
+        // span.style.fontFamily = 'Verdana, sans-serif';
+        // span.style.fontSize = '13px';
+        // span.style.height = 'auto';
+        // span.style.width = 'auto';
+        // span.style.position = 'absolute';
+        // span.style.whiteSpace = 'pre-wrap';
+        // span.innerHTML = event.target.value;
+        // if (136 < span.clientWidth + 45 && span.clientWidth + 45 < 300) {
+        //     event.target.style.width = span.clientWidth + 45 + 'px';
+        // }
+        // // console.log(span.clientHeight);
+        // span.remove();
+
+        // auto adjust textarea height
+        container.style.height = 0;
+        container.style.height = textarea.scrollHeight + 'px';
+
+        // console.log(event.target.scrollHeight);
+        // event.target.style.height = event.target.scrollHeight + 'px';
+
+        /* MAYBE
+        let span4Height = document.createElement('span');
+        document.body.appendChild(span4Height);
+        span4Height.style.fontFamily = 'Verdana, sans-serif';
+        span4Height.style.fontSize = '13px';
+        span4Height.style.height = 'auto';
+        span4Height.style.width = parseInt(event.target.style.width) - 40 + 'px';
+        span4Height.style.position = 'absolute';
+        span4Height.style.whiteSpace = 'pre-line';
+        span4Height.innerHTML = event.target.value;
+        event.target.style.height = span4Height.clientHeight + 15 + 'px';
+         */
+    });
 
     // create delButton
     let delButton = document.createElement("BUTTON");
@@ -23,8 +64,17 @@ function createTextbox(id, posX, posY, url) {
     associationButton.id = id;
     associationButton.name = 'associationButton';
 
+    // create dropdownButton
+    let dropdownButton = document.createElement('BUTTON');
+    dropdownButton.id = id;
+    dropdownButton.name = 'dropdownButton';
+    const DROPPED = 1;
+    const COLLAPSED = 0;
+    dropdownButton.state = DROPPED;
+
+
     // setup textbox
-    initializeTextbox(container, textarea, delButton, associationButton, null);
+    initializeTextbox(container, textarea, delButton, associationButton, dropdownButton, null);
 
     // set container position
     container.style.left = posX + 'px';
@@ -39,6 +89,7 @@ function createTextbox(id, posX, posY, url) {
         textarea: textarea,
         delButton: delButton,
         associationButton: associationButton,
+        dropdownButton: dropdownButton,
         associatedHighlight: null,
         new: true}
 
