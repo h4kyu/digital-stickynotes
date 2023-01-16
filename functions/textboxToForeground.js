@@ -27,7 +27,7 @@ function textboxToForeground(box) {
     textarea.style.color = 'aliceblue';
     textarea.style.border = 'solid 1px lightblue';
     textarea.bged = false;
-    textarea.blur();
+    // textarea.blur();
     if (box.associatedHighlight !== null) {
         box.associatedHighlight.style.backgroundColor = 'rgba(120, 120, 190, 0.5)';
     }
