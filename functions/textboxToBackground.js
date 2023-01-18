@@ -13,4 +13,8 @@ function textboxToBackground(box) {
     if (box.associatedHighlight !== null) {
         box.associatedHighlight.style.backgroundColor = 'rgba(50, 85, 120, 0.25)';
     }
+    // hide buttons
+    box.associationButton.style.display = 'none';
+    box.movementDiv.style.display = 'none';
+    box.copyButton.style.display = 'none';
 }

@@ -1,6 +1,6 @@
 // initializes textbox with all proper customizations
 
-function initializeTextbox(container, textarea, delButton, associationButton, dropdownButton, highlightBoxAttributes) {
+function initializeTextbox(container, textarea, delButton, associationButton, movementDiv, copyButton, highlightBoxAttributes) {
     // container
     container.style.position = 'absolute';
     container.style.resize = 'none';
@@ -12,7 +12,7 @@ function initializeTextbox(container, textarea, delButton, associationButton, dr
     textarea.style.resize = 'none';
     textarea.style.fontSize = '13px';
     textarea.style.fontFamily = "Verdana, sans-serif";
-    textarea.style.padding = '7px 20px 6px 20px';
+    textarea.style.padding = '7px 20px 6px 10px';
     textarea.style.boxSizing = 'border-box';
     textarea.style.borderRadius = '15px';
     textarea.style.width = '100%';
@@ -25,15 +25,11 @@ function initializeTextbox(container, textarea, delButton, associationButton, dr
     delButton.style.width = '15px';
     delButton.style.height = '15px';
     delButton.style.fontFamily = "monospace";
-//    delButton.style.fontSize = '15px';
     delButton.style.color = 'lightblue';
-//    delButton.style.padding = '0px, 0px, 10px, 0px';
     delButton.style.backgroundColor = 'transparent';
     delButton.style.borderRadius = '4px';
     delButton.style.border = 'none';
     delButton.style.outline = 'none';
-//    let delButtonSymbol = document.createTextNode('x');
-//    delButton.appendChild(delButtonSymbol);
     delButton.style.backgroundImage = "url("+browser.extension.getURL('icons/close.png')+")";
     delButton.style.backgroundPosition = 'center';
     delButton.style.backgroundSize = '50%';
@@ -46,43 +42,53 @@ function initializeTextbox(container, textarea, delButton, associationButton, dr
     container.appendChild(associationButton);
     associationButton.style.width = '20px';
     associationButton.style.height = '20px';
-    associationButton.style.fontFamily = "monospace";
-    associationButton.style.fontSize = '15px';
-    associationButton.style.color = 'lightblue';
     associationButton.style.padding = '0px 0px';
-    associationButton.style.backgroundColor = 'transparent';
+    associationButton.style.backgroundColor = 'rgba(110, 120, 150, 0.95)';
     associationButton.style.borderRadius = '4px';
     associationButton.style.border = 'none';
     associationButton.style.outline = 'none';
-    let associationButtonSymbol = document.createTextNode('<');
-    associationButton.appendChild(associationButtonSymbol);
+    associationButton.style.backgroundImage = "url("+browser.extension.getURL('icons/link.png')+")"
+    associationButton.style.backgroundPosition = 'center';
+    associationButton.style.backgroundSize = '70%';
+    associationButton.style.backgroundRepeat = 'no-repeat';
     associationButton.style.position = 'absolute';
-    associationButton.style.left = '0px';
-    associationButton.style.top = '0px';
+    associationButton.style.right = '0px';
+    associationButton.style.top = '-25px';
     associationButton.style.cursor = 'pointer';
-//    associationButton.style.transform = 'rotate(90deg)';
-    // dropdownButton
-    container.appendChild(dropdownButton);
-    dropdownButton.style.width = '15px';
-    dropdownButton.style.height = '15px';
-    dropdownButton.style.fontFamily = "monospace";
-    //    delButton.style.fontSize = '15px';
-    dropdownButton.style.color = 'lightblue';
-    //    delButton.style.padding = '0px, 0px, 10px, 0px';
-    dropdownButton.style.backgroundColor = 'transparent';
-    dropdownButton.style.borderRadius = '4px';
-    dropdownButton.style.border = 'none';
-    dropdownButton.style.outline = 'none';
-    //    let delButtonSymbol = document.createTextNode('x');
-    //    delButton.appendChild(delButtonSymbol);
-    dropdownButton.style.backgroundImage = "url("+browser.extension.getURL('icons/dropdown.png')+")";
-    dropdownButton.style.backgroundPosition = 'center';
-    dropdownButton.style.backgroundSize = '50%';
-    dropdownButton.style.backgroundRepeat = 'no-repeat';
-    dropdownButton.style.position = 'absolute';
-    dropdownButton.style.left = '5px';
-    dropdownButton.style.top = '7.5px';
-    dropdownButton.style.cursor = 'pointer';
+    // movementButton
+    container.appendChild(movementDiv);
+    movementDiv.style.width = '20px';
+    movementDiv.style.height = '20px';
+    movementDiv.style.padding = '0px 0px';
+    movementDiv.style.backgroundColor = 'rgba(110, 120, 150, 0.95)';
+    movementDiv.style.borderRadius = '4px';
+    movementDiv.style.border = 'none';
+    movementDiv.style.outline = 'none';
+    movementDiv.style.backgroundImage = "url("+browser.extension.getURL('icons/move.png')+")"
+    movementDiv.style.backgroundPosition = 'center';
+    movementDiv.style.backgroundSize = '82%';
+    movementDiv.style.backgroundRepeat = 'no-repeat';
+    movementDiv.style.position = 'absolute';
+    movementDiv.style.left = '-25px';
+    movementDiv.style.top = '5px';
+    movementDiv.style.cursor = 'pointer';
+    // copyButton
+    container.appendChild(copyButton);
+    copyButton.style.width = '20px';
+    copyButton.style.height = '20px';
+    copyButton.style.padding = '0px 0px';
+    copyButton.style.backgroundColor = 'rgba(110, 120, 150, 0.95)';
+    copyButton.style.borderRadius = '4px';
+    copyButton.style.border = 'none';
+    copyButton.style.outline = 'none';
+    copyButton.style.backgroundImage = "url("+browser.extension.getURL('icons/copy.png')+")"
+    copyButton.style.backgroundPosition = 'center';
+    copyButton.style.backgroundSize = '80%';
+    copyButton.style.backgroundRepeat = 'no-repeat';
+    copyButton.style.position = 'absolute';
+    copyButton.style.right = '25px';
+    copyButton.style.top = '-25px';
+    copyButton.style.cursor = 'pointer';
     // highlightBox
     if (highlightBoxAttributes !== null) {
         let highlightBox = document.createElement('div');

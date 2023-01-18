@@ -35,7 +35,8 @@
 
     "web_accessible_resources": [
         "icons/close.png",
-        "icons/dropdown.png"
+        "icons/dropdown.png",
+        "icons/link.png"
     ],
 
     "browser_action": {

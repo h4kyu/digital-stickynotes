@@ -3,14 +3,15 @@ function deleteTextbox(textbox, url) {
     let id = textbox.id;
     browser.storage.local.get(url).then(
             function(val) {
-                // iterate over array of box attributes to find box with id
-                for (let i = 0; i < val[url].length; i++) {
-                    if (val[url][i][0] === id) { // remove box attributes array of box with id
-                        val[url].splice(i, 1);
-                        let setVars = {};
-                        setVars[url] = val[url];
-                        browser.storage.local.set(setVars);
-                        break;
+                if (val[url]) { // iterate over array of box attributes to find box with id
+                    for (let i = 0; i < val[url].length; i++) {
+                        if (val[url][i][0] === id) { // remove box attributes array of box with id
+                            val[url].splice(i, 1);
+                            let setVars = {};
+                            setVars[url] = val[url];
+                            browser.storage.local.set(setVars);
+                            break;
+                        }
                     }
                 }
             },

@@ -12,7 +12,7 @@ function textboxToForeground(box) {
     span.style.position = 'absolute';
     span.style.fontSize = '13px';
     span.style.fontFamily = 'Verdana, sans-serif';
-    span.style.padding = '7px 20px 6px 20px';
+    span.style.padding = '5px 20px 6px 10px';
     span.innerHTML = textarea.value;
 
 
@@ -22,7 +22,7 @@ function textboxToForeground(box) {
     container.style.height = span.clientHeight + 'px';
     span.remove();
     container.style.width = '300px';
-    textarea.style.padding = '7px 20px 6px 20px';
+    textarea.style.padding = '5px 20px 6px 10px';
     textarea.style.backgroundColor = 'rgba(110, 120, 150, 0.95)';
     textarea.style.color = 'aliceblue';
     textarea.style.border = 'solid 1px lightblue';
@@ -31,4 +31,8 @@ function textboxToForeground(box) {
     if (box.associatedHighlight !== null) {
         box.associatedHighlight.style.backgroundColor = 'rgba(120, 120, 190, 0.5)';
     }
+    // show buttons
+    box.associationButton.style.display = '';
+    box.movementDiv.style.display = '';
+    box.copyButton.style.display = '';
 }

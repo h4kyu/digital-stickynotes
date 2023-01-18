@@ -27,13 +27,16 @@ function loadTextboxes(val, url) {
             associationButton.id = id;
             associationButton.name = 'associationButton';
 
-            // create dropdownButton
-            let dropdownButton = document.createElement('BUTTON');
-            dropdownButton.id = id;
-            dropdownButton.name = 'dropdownButton';
-            const DROPPED = 1;
-            const COLLAPSED = 0;
-            dropdownButton.state = DROPPED;
+            // create movementButton
+            let movementDiv = document.createElement("div");
+            movementDiv.id = id;
+            movementDiv.name = 'movementDiv';
+            movementDiv.draggable = true;
+
+            // create copyButton
+            let copyButton = document.createElement('button');
+            copyButton.id = id;
+            copyButton.name = 'copyButton';
 
             // setup associated highlight
             let highlightBoxAttributes = boxAttributes[3];
@@ -52,7 +55,7 @@ function loadTextboxes(val, url) {
             }
 
             // add elements together
-            initializeTextbox(container, textarea, delButton, associationButton, dropdownButton, null);
+            initializeTextbox(container, textarea, delButton, associationButton, movementDiv, copyButton, null);
 
             // add to page
             document.body.appendChild(container);
@@ -67,6 +70,8 @@ function loadTextboxes(val, url) {
                 textarea: textarea,
                 delButton: delButton,
                 associationButton: associationButton,
+                movementDiv: movementDiv,
+                copyButton: copyButton,
                 associatedHighlight: highlightBox,
                 new: false}
 
