@@ -4,19 +4,22 @@ function initializeTextbox(container, textarea, delButton, associationButton, mo
     // container
     container.style.position = 'absolute';
     container.style.resize = 'none';
-    container.style.height = '30px';
+    container.style.height = '55px';
     container.style.width = '300px';
     // textarea
     container.appendChild(textarea);
     textarea.spellcheck = false;
-    textarea.style.resize = 'none';
+    textarea.style.position = 'absolute';
     textarea.style.fontSize = '13px';
     textarea.style.fontFamily = "Verdana, sans-serif";
     textarea.style.padding = '7px 20px 6px 10px';
     textarea.style.boxSizing = 'border-box';
     textarea.style.borderRadius = '15px';
-    textarea.style.width = '100%';
-    textarea.style.height = '100%';
+    textarea.style.width = '275px';
+    textarea.style.height = '30px';
+    textarea.style.left = '25px';
+    textarea.style.bottom = '0px';
+    textarea.style.resize = 'none';
     textarea.style.overflow = 'hidden'; // disables scroll bar
     // textarea.style.whiteSpace = 'nowrap';
     textarea.style.textOverflow = 'ellipsis';
@@ -36,7 +39,7 @@ function initializeTextbox(container, textarea, delButton, associationButton, mo
     delButton.style.backgroundRepeat = 'no-repeat';
     delButton.style.position = 'absolute';
     delButton.style.right = '5px';
-    delButton.style.top = '7.5px';
+    delButton.style.top = '32.5px';
     delButton.style.cursor = 'pointer';
     // associationButton
     container.appendChild(associationButton);
@@ -53,7 +56,7 @@ function initializeTextbox(container, textarea, delButton, associationButton, mo
     associationButton.style.backgroundRepeat = 'no-repeat';
     associationButton.style.position = 'absolute';
     associationButton.style.right = '0px';
-    associationButton.style.top = '-25px';
+    associationButton.style.top = '0px';
     associationButton.style.cursor = 'pointer';
     // movementButton
     container.appendChild(movementDiv);
@@ -69,8 +72,8 @@ function initializeTextbox(container, textarea, delButton, associationButton, mo
     movementDiv.style.backgroundSize = '82%';
     movementDiv.style.backgroundRepeat = 'no-repeat';
     movementDiv.style.position = 'absolute';
-    movementDiv.style.left = '-25px';
-    movementDiv.style.top = '5px';
+    movementDiv.style.left = '0px';
+    movementDiv.style.top = '30px';
     movementDiv.style.cursor = 'pointer';
     // copyButton
     container.appendChild(copyButton);
@@ -87,7 +90,7 @@ function initializeTextbox(container, textarea, delButton, associationButton, mo
     copyButton.style.backgroundRepeat = 'no-repeat';
     copyButton.style.position = 'absolute';
     copyButton.style.right = '25px';
-    copyButton.style.top = '-25px';
+    copyButton.style.top = '0px';
     copyButton.style.cursor = 'pointer';
     // highlightBox
     if (highlightBoxAttributes !== null) {

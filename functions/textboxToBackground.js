@@ -3,8 +3,10 @@ function textboxToBackground(box) {
     let textarea = box.textarea;
     let container = box.container;
     textarea.style.whiteSpace = 'nowrap';
-    container.style.height = '30px';
-    container.style.width = '110px';
+    container.style.height = '55px';
+    container.style.width = '135px';
+    textarea.style.height = '30px';
+    textarea.style.width = '110px';
     textarea.style.background = 'rgba(80, 90, 115, 0.85)';
     textarea.style.color = 'aliceblue';
     textarea.style.border = 'solid 1px lightblue';

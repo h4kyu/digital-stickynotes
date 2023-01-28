@@ -17,9 +17,9 @@ function textboxToForeground(box) {
 
 
     container.style.height = 0;
-    // console.log(textarea.scrollHeight);
-    // container.style.height = textarea.scrollHeight + 'px';
-    container.style.height = span.clientHeight + 'px';
+    container.style.height = span.clientHeight + 25 + 'px';
+    textarea.style.height = span.clientHeight + 'px';
+    textarea.style.width = '275px';
     span.remove();
     container.style.width = '300px';
     textarea.style.padding = '5px 20px 6px 10px';

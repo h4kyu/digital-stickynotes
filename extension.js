@@ -37,15 +37,17 @@ function main(textboxes) {
 
     document.documentElement.addEventListener("mouseover", (e) => { // handle mouseover event
         // check if mouse is over a textbox
-        if (e.target.type === "textarea") {
+        if (e.target.isMyBox) {
             currentMouseOver = textboxes[e.target.id];
-            // currentMouseOver.associationButton.style.display = '';
-            // currentMouseOver.movementDiv.style.display = '';
-            // currentMouseOver.copyButton.style.display = '';
-        } else{
-            // currentMouseOver.associationButton.style.display = 'none';
-            // currentMouseOver.movementDiv.style.display = 'none';
-            // currentMouseOver.copyButton.style.display = 'none';
+            currentMouseOver.associationButton.style.display = '';
+            currentMouseOver.movementDiv.style.display = '';
+            currentMouseOver.copyButton.style.display = '';
+        } else {
+            if (currentSelected === null) {
+                currentMouseOver.associationButton.style.display = 'none';
+                currentMouseOver.movementDiv.style.display = 'none';
+                currentMouseOver.copyButton.style.display = 'none';
+            }
             currentMouseOver = null;
         }
     });
@@ -156,6 +158,10 @@ function main(textboxes) {
 
         event.preventDefault();
         box.container.style.transform = 'none';
+
+        // update storage
+        updateStorage(box, 2, url);
+
         return false;
     }
 
@@ -201,10 +207,12 @@ function main(textboxes) {
                     deleteTextbox(box, url);
                 } else { // if textbox is not new, push it to background
                     textboxToBackground(box);
+                    currentSelected = null;
                 }
             } else if (e.key === 'Enter' && !e.shiftKey) {
                 if (box.textarea.value) {
                     textboxToBackground(box);
+                    currentSelected = null;
                     box.new = false;
                 } else {
                     deleteTextbox(box, url);
@@ -242,5 +250,114 @@ browser.storage.local.get(key).then( // get attributes of stored boxes
 
 // receive message from toolbar popup, then scroll to appropriate textbox position
 browser.runtime.onMessage.addListener((request) => {
-   window.scrollTo(0, request.scrollY - 200);
+    window.scrollTo(0, request.scrollY - 200);
+});
+
+let allNodes = [];
+
+// actually start at the common ancestor container and traverse the tree until we find the start node
+function getTextNodes(node, reachedStartContainer, startContainer, endContainer) {
+    if (node === startContainer) {
+        return [true, [node], false];
+    }
+    if (node === endContainer) {
+        return [reachedStartContainer, [node], true];
+    }
+    if (node.nodeType === Node.TEXT_NODE) {
+        if (reachedStartContainer) {
+            return [reachedStartContainer, [node], false];
+        }
+        return [reachedStartContainer, [], false];
+    }
+
+    let nodes = [];
+    var stop = false;
+    for (var i = 0 ; i < node.childNodes.length ; i++) {
+        var [reachedStartContainer, newNodes, stop] = getTextNodes(node.childNodes[i], reachedStartContainer, startContainer, endContainer);
+        nodes.push(...newNodes);
+        if (stop) {
+            return [reachedStartContainer, nodes, stop];
+        }
+    }
+    return [reachedStartContainer, nodes, stop];
+}
+
+
+document.body.addEventListener('click', (event) => {
+    let selection = window.getSelection();
+    let allNodes = [];
+    for (let i = 0; i < selection.rangeCount; i++) {
+        let range = selection.getRangeAt(i);
+        let startContainer = range.startContainer;
+        let endContainer = range.endContainer;
+        let commonAncestorContainer = range.commonAncestorContainer;
+        // console.log("calliing with commonAncestorContainer: ", commonAncestorContainer, "start: ", startContainer, "end: ", endContainer);
+        debugger;
+        let foo = getTextNodes(commonAncestorContainer, false, startContainer, endContainer);
+        console.log(foo);
+        allNodes.push(...foo[1]);
+    }
+    // console.log(allNodes);
+    // console.log(selection);
+    // console.log(selection.anchorOffset, selection.focusOffset);
+    // TODO try highlighting
+    /* TODO try surrounding text node with stylable element by getting text node position in parent element and
+    *   wrapping it with element.
+    * ex. <div><span>some</span>random<i>text</i></div>
+    * alternatively can try to create a range around textnode? */
+    // for (let i = 0; i < allNodes.length; i++) {
+    //     let node = allNodes[i];
+    //     let surroundRange = new Range();
+    //     let rangeStart, rangeEnd;
+    //     if (i === 0) { // offset first highlight
+    //         rangeStart = selection.anchorOffset;
+    //         rangeEnd = node.length;
+    //     } else if (i === allNodes.length - 1) { // offset last highlight
+    //         rangeStart = 0;
+    //         rangeEnd = selection.focusOffset;
+    //     } else {
+    //         rangeStart = 0;
+    //         rangeEnd = node.length;
+    //     }
+    //
+    //     let surroundParent = document.createElement('span');
+    //     surroundParent.style.backgroundColor = 'yellow';
+    //     surroundParent.style.display = 'inline';
+    //     surroundRange.setStart(node, rangeStart);
+    //     surroundRange.setEnd(node, rangeEnd);
+    //     // console.log('innerHTML before:', node.parentNode.innerHTML);
+    //     surroundRange.surroundContents(surroundParent);
+    //     // console.log('innerHTML after:', node.parentNode.innerHTML);
+
+
+    // if (i === 0) { // offset first highlight
+    //     let surroundRange = new Range();
+    //     surroundRange.setStart(node, selection.anchorOffset);
+    //     surroundRange.setEnd(node, node.length);
+    //     let surroundParent = document.createElement('span');
+    //     surroundParent.style.backgroundColor = 'yellow';
+    //     surroundParent.style.display = 'inline';
+    //     surroundRange.surroundContents(surroundParent);
+    //     continue;
+    // } else if (i === allNodes.length - 1) { // offset last highlight
+    //     let surroundRange = new Range();
+    //     surroundRange.setStart(node, 0);
+    //     surroundRange.setEnd(node, selection.focusOffset);
+    //     let surroundParent = document.createElement('span');
+    //     surroundParent.style.backgroundColor = 'yellow';
+    //     surroundParent.style.display = 'inline';
+    //     surroundRange.surroundContents(surroundParent);
+    //     continue;
+    // }
+    // let parent = node.parentNode;
+    // let index = Array.prototype.indexOf.call(parent.childNodes,  node);
+    // let surroundRange = new Range();
+    // surroundRange.setStart(parent, index);
+    // surroundRange.setEnd(parent, index + 1);
+    // let surroundParent = document.createElement('span');
+    // surroundParent.style.backgroundColor = 'yellow';
+    // surroundParent.style.display = 'inline';
+    // surroundRange.surroundContents(surroundParent);
+    // }
+    // selection.removeAllRanges();
 });

@@ -1,20 +1,26 @@
 
+const containerDiv = document.createElement('div');
+// containerDiv.style.width = '275px';
+containerDiv.style.columnCount = '1';
+containerDiv.style.columnWidth = '275px';
+containerDiv.style.position = 'absolute';
+containerDiv.style.top = '0px';
+containerDiv.style.left = '0px';
+containerDiv.style.height = '1000px';
+document.body.appendChild(containerDiv);
+
 function addTextboxElement(textboxAttributes, i) {
     // create a new div element to simulate textbox
-    const newDiv = document.createElement("textarea");
-    newDiv.type = 'text';
-    newDiv.style.resize = 'none';
-    newDiv.readOnly = true;
-    newDiv.style.height = '100px';
-    newDiv.style.width = '350px';
-    newDiv.style.position = 'absolute';
+    const newDiv = document.createElement("div");
+    newDiv.style.width = '275px';
+    // newDiv.style.position = 'absolute';
     newDiv.style.boxSizing = 'border-box';
-    newDiv.style.padding = '5px 20px';
-    newDiv.style.borderRadius = '7px';
-    newDiv.style.backgroundColor = 'rgba(110, 120, 150, 0.95)';
+    newDiv.style.padding = '5px 20px 6px 10px';
+    newDiv.style.borderRadius = '15px';
+    newDiv.style.backgroundColor = 'rgba(80, 90, 115, 0.85)';
     newDiv.style.border = 'solid 1px lightblue';
     newDiv.style.color = 'aliceblue';
-    newDiv.style.fontFamily = "Courier New, monospace";
+    newDiv.style.fontFamily = "Verdana, sans-serif";
     newDiv.style.fontSize = '13px';
     newDiv.boxAttributes = textboxAttributes;
 
@@ -23,11 +29,18 @@ function addTextboxElement(textboxAttributes, i) {
 
     // add the text node to the newly created div
     newDiv.appendChild(newContent);
+    newDiv.style.whiteSpace = 'pre-line';
+    // newDiv.style.height = newDiv.scrollHeight + 25 + 'px';
+
+    // newDiv.style.display = 'inline-block';
+    // newDiv.style.margin = '0 0 1em';
+    newDiv.style.columnSpan = 'all';
+    newDiv.style.marginBottom = '25px';
 
     // add the newly created element and its content into the DOM
-    document.body.append(newDiv);
-    newDiv.style.left = '25px';
-    newDiv.style.top = 100*i + 25*(i + 1) + 'px';
+    containerDiv.appendChild(newDiv);
+    // newDiv.style.left = '25px';
+    // newDiv.style.top = parseInt(newDiv.style.height) + 25*(i + 1) + 'px';
 }
 
 //document.addEventListener("click", (event) => {

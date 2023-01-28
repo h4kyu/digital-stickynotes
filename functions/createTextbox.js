@@ -3,15 +3,19 @@ function createTextbox(id, posX, posY, url) {
     // setup box container
     let container = document.createElement("div");
     container.id = id;
+    container.name = 'boxContainer';
+    container.isMyBox = true;
 
     // setup textarea object
     let textarea = document.createElement("textarea");
     textarea.type = "text";
     textarea.id = id;
+    textarea.name = 'textarea666';
     textarea.style.backgroundColor = 'rgba(110, 120, 150, 0.95)';
     textarea.style.color = 'aliceblue';
     textarea.style.border = 'solid 1px lightblue';
     textarea.style.boxSizing = 'border-box';
+    textarea.isMyBox = true;
 
     // TEST
     textarea.addEventListener('input', function (event) {
@@ -20,29 +24,34 @@ function createTextbox(id, posX, posY, url) {
 
         // auto adjust textarea height
         container.style.height = 0;
-        container.style.height = textarea.scrollHeight + 'px';
+        container.style.height = textarea.scrollHeight + 25 +  'px';
+        textarea.style.height = textarea.scrollHeight + 'px';
     });
 
     // create delButton
     let delButton = document.createElement("BUTTON");
     delButton.id = id;
     delButton.name = 'delButton';
+    delButton.isMyBox = true;
 
     // create associationButton
     let associationButton = document.createElement("BUTTON");
     associationButton.id = id;
     associationButton.name = 'associationButton';
+    associationButton.isMyBox = true;
 
     // create movementButton
     let movementDiv = document.createElement("div");
     movementDiv.id = id;
     movementDiv.name = 'movementDiv';
     movementDiv.draggable = true;
+    movementDiv.isMyBox = true;
 
     // create copyButton
     let copyButton = document.createElement('button');
     copyButton.id = id;
     copyButton.name = 'copyButton';
+    copyButton.isMyBox = true;
 
     // setup textbox
     initializeTextbox(container, textarea, delButton, associationButton, movementDiv, copyButton, null);
