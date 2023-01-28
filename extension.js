@@ -258,10 +258,10 @@ let allNodes = [];
 // actually start at the common ancestor container and traverse the tree until we find the start node
 function getTextNodes(node, reachedStartContainer, startContainer, endContainer) {
     if (node === startContainer) {
-        return [true, [node], false];
+        return [true, [], false];
     }
     if (node === endContainer) {
-        return [reachedStartContainer, [node], true];
+        return [reachedStartContainer, [], true];
     }
     if (node.nodeType === Node.TEXT_NODE) {
         if (reachedStartContainer) {
@@ -272,7 +272,7 @@ function getTextNodes(node, reachedStartContainer, startContainer, endContainer)
 
     let nodes = [];
     var stop = false;
-    for (var i = 0 ; i < node.childNodes.length ; i++) {
+    for (let i = 0 ; i < node.childNodes.length ; i++) {
         var [reachedStartContainer, newNodes, stop] = getTextNodes(node.childNodes[i], reachedStartContainer, startContainer, endContainer);
         nodes.push(...newNodes);
         if (stop) {
@@ -285,49 +285,118 @@ function getTextNodes(node, reachedStartContainer, startContainer, endContainer)
 
 document.body.addEventListener('click', (event) => {
     let selection = window.getSelection();
+
     let allNodes = [];
+    let startContainers = [];
+    let endContainers = [];
+    let allRanges = [];
     for (let i = 0; i < selection.rangeCount; i++) {
         let range = selection.getRangeAt(i);
+        allRanges.push(range);
         let startContainer = range.startContainer;
+        startContainers.push(startContainer);
         let endContainer = range.endContainer;
+        endContainers.push(endContainer);
         let commonAncestorContainer = range.commonAncestorContainer;
-        // console.log("calliing with commonAncestorContainer: ", commonAncestorContainer, "start: ", startContainer, "end: ", endContainer);
-        debugger;
         let foo = getTextNodes(commonAncestorContainer, false, startContainer, endContainer);
-        console.log(foo);
         allNodes.push(...foo[1]);
     }
     // console.log(allNodes);
-    // console.log(selection);
+    console.log(allRanges);
+    console.log('startContainers:', startContainers, 'endContainers:', endContainers);
+    for (let i = 0; i < allRanges.length; i++) {
+        let range = allRanges[i];
+
+
+
+        let a = range.commonAncestorContainer;
+        // Starts -- Work inward from the start, selecting the largest safe range
+        let s = new Array(0), rs = new Array(0);
+        if (range.startContainer !== a) {
+            for (let i = range.startContainer; i !== a; i = i.parentNode)
+                s.push(i)
+                ;
+        }
+        if (0 < s.length) for (let i = 0; i < s.length; i++) {
+            let xs = document.createRange();
+            if (i) {
+                xs.setStartAfter(s[i-1]);
+                xs.setEndAfter(s[i].lastChild);
+            }
+            else {
+                xs.setStart(s[i], range.startOffset);
+                xs.setEndAfter(
+                    (s[i].nodeType === Node.TEXT_NODE)
+                        ? s[i] : s[i].lastChild
+                );
+            }
+            rs.push(xs);
+        }
+
+        // Ends -- basically the same code reversed
+        let e = new Array(0), re = new Array(0);
+        if (range.endContainer !== a)
+            for (let i = range.endContainer; i !== a; i = i.parentNode)
+                e.push(i)
+                ;
+        if (0 < e.length) for (let i = 0; i < e.length; i++) {
+            let xe = document.createRange();
+            if (i) {
+                xe.setStartBefore(e[i].firstChild);
+                xe.setEndBefore(e[i-1]);
+            }
+            else {
+                xe.setStartBefore(
+                    (e[i].nodeType === Node.TEXT_NODE)
+                        ? e[i] : e[i].firstChild
+                );
+                xe.setEnd(e[i], range.endOffset);
+            }
+            re.unshift(xe);
+        }
+
+        let final = rs.concat(re);
+
+        console.log('first and start', final);
+
+        for (let i = 0; i < final.length; i++) {
+            let range = final[i];
+            let surroundParent = document.createElement('span');
+            surroundParent.style.backgroundColor = 'yellow';
+            surroundParent.style.display = 'inline';
+            range.surroundContents(surroundParent);
+        }
+    }
+
     // console.log(selection.anchorOffset, selection.focusOffset);
     // TODO try highlighting
     /* TODO try surrounding text node with stylable element by getting text node position in parent element and
     *   wrapping it with element.
     * ex. <div><span>some</span>random<i>text</i></div>
     * alternatively can try to create a range around textnode? */
-    // for (let i = 0; i < allNodes.length; i++) {
-    //     let node = allNodes[i];
-    //     let surroundRange = new Range();
-    //     let rangeStart, rangeEnd;
-    //     if (i === 0) { // offset first highlight
-    //         rangeStart = selection.anchorOffset;
-    //         rangeEnd = node.length;
-    //     } else if (i === allNodes.length - 1) { // offset last highlight
-    //         rangeStart = 0;
-    //         rangeEnd = selection.focusOffset;
-    //     } else {
-    //         rangeStart = 0;
-    //         rangeEnd = node.length;
-    //     }
-    //
-    //     let surroundParent = document.createElement('span');
-    //     surroundParent.style.backgroundColor = 'yellow';
-    //     surroundParent.style.display = 'inline';
-    //     surroundRange.setStart(node, rangeStart);
-    //     surroundRange.setEnd(node, rangeEnd);
-    //     // console.log('innerHTML before:', node.parentNode.innerHTML);
-    //     surroundRange.surroundContents(surroundParent);
-    //     // console.log('innerHTML after:', node.parentNode.innerHTML);
+    for (let i = 0; i < allNodes.length; i++) {
+        let node = allNodes[i];
+        let surroundRange = new Range();
+        let rangeStart, rangeEnd;
+        // if (i === 0) { // offset first highlight
+        //     rangeStart = selection.anchorOffset;
+        //     rangeEnd = node.length;
+        // } else if (i === allNodes.length - 1) { // offset last highlight
+        //     rangeStart = 0;
+        //     rangeEnd = selection.focusOffset;
+        // } else {
+        //     rangeStart = 0;
+        //     rangeEnd = node.length;
+        // }
+        rangeStart = 0;
+        rangeEnd = node.length;
+
+        let surroundParent = document.createElement('span');
+        surroundParent.style.backgroundColor = 'yellow';
+        surroundParent.style.display = 'inline';
+        surroundRange.setStart(node, rangeStart);
+        surroundRange.setEnd(node, rangeEnd);
+        surroundRange.surroundContents(surroundParent);
 
 
     // if (i === 0) { // offset first highlight
@@ -358,6 +427,7 @@ document.body.addEventListener('click', (event) => {
     // surroundParent.style.backgroundColor = 'yellow';
     // surroundParent.style.display = 'inline';
     // surroundRange.surroundContents(surroundParent);
-    // }
-    // selection.removeAllRanges();
+
+    }
+    selection.removeAllRanges();
 });
