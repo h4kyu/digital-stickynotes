@@ -253,8 +253,6 @@ browser.runtime.onMessage.addListener((request) => {
     window.scrollTo(0, request.scrollY - 200);
 });
 
-let allNodes = [];
-
 // actually start at the common ancestor container and traverse the tree until we find the start node
 function getTextNodes(node, reachedStartContainer, startContainer, endContainer) {
     if (node === startContainer) {
@@ -299,31 +297,38 @@ document.body.addEventListener('click', (event) => {
         endContainers.push(endContainer);
         let commonAncestorContainer = range.commonAncestorContainer;
         let foo = getTextNodes(commonAncestorContainer, false, startContainer, endContainer);
+        console.log('ancestor:', commonAncestorContainer, 'startContainer:', startContainer, 'endContainer', endContainer, range.startOffset, range.endOffset);
+        if (commonAncestorContainer === startContainer && startContainer === endContainer) { // all within the same text node
+            let surroundRange = new Range();
+            let rangeStart, rangeEnd;
+            rangeStart = range.startOffset;
+            rangeEnd = range.endOffset;
+
+            let surroundParent = document.createElement('span');
+            surroundParent.style.backgroundColor = 'yellow';
+            surroundParent.style.display = 'inline';
+            surroundRange.setStart(startContainer, rangeStart);
+            surroundRange.setEnd(startContainer, rangeEnd);
+            surroundRange.surroundContents(surroundParent);
+        }
         allNodes.push(...foo[1]);
     }
-    // console.log(allNodes);
-    console.log(allRanges);
-    console.log('startContainers:', startContainers, 'endContainers:', endContainers);
     for (let i = 0; i < allRanges.length; i++) {
         let range = allRanges[i];
-
-
-
         let a = range.commonAncestorContainer;
         // Starts -- Work inward from the start, selecting the largest safe range
         let s = new Array(0), rs = new Array(0);
         if (range.startContainer !== a) {
-            for (let i = range.startContainer; i !== a; i = i.parentNode)
-                s.push(i)
-                ;
+            for (let i = range.startContainer; i !== a; i = i.parentNode) {
+                s.push(i);
+            }
         }
         if (0 < s.length) for (let i = 0; i < s.length; i++) {
             let xs = document.createRange();
             if (i) {
                 xs.setStartAfter(s[i-1]);
                 xs.setEndAfter(s[i].lastChild);
-            }
-            else {
+            } else {
                 xs.setStart(s[i], range.startOffset);
                 xs.setEndAfter(
                     (s[i].nodeType === Node.TEXT_NODE)
@@ -335,10 +340,11 @@ document.body.addEventListener('click', (event) => {
 
         // Ends -- basically the same code reversed
         let e = new Array(0), re = new Array(0);
-        if (range.endContainer !== a)
-            for (let i = range.endContainer; i !== a; i = i.parentNode)
-                e.push(i)
-                ;
+        if (range.endContainer !== a) {
+            for (let i = range.endContainer; i !== a; i = i.parentNode) {
+                e.push(i);
+            }
+        }
         if (0 < e.length) for (let i = 0; i < e.length; i++) {
             let xe = document.createRange();
             if (i) {
@@ -357,8 +363,6 @@ document.body.addEventListener('click', (event) => {
 
         let final = rs.concat(re);
 
-        console.log('first and start', final);
-
         for (let i = 0; i < final.length; i++) {
             let range = final[i];
             let surroundParent = document.createElement('span');
@@ -368,26 +372,10 @@ document.body.addEventListener('click', (event) => {
         }
     }
 
-    // console.log(selection.anchorOffset, selection.focusOffset);
-    // TODO try highlighting
-    /* TODO try surrounding text node with stylable element by getting text node position in parent element and
-    *   wrapping it with element.
-    * ex. <div><span>some</span>random<i>text</i></div>
-    * alternatively can try to create a range around textnode? */
     for (let i = 0; i < allNodes.length; i++) {
         let node = allNodes[i];
         let surroundRange = new Range();
         let rangeStart, rangeEnd;
-        // if (i === 0) { // offset first highlight
-        //     rangeStart = selection.anchorOffset;
-        //     rangeEnd = node.length;
-        // } else if (i === allNodes.length - 1) { // offset last highlight
-        //     rangeStart = 0;
-        //     rangeEnd = selection.focusOffset;
-        // } else {
-        //     rangeStart = 0;
-        //     rangeEnd = node.length;
-        // }
         rangeStart = 0;
         rangeEnd = node.length;
 
@@ -397,37 +385,6 @@ document.body.addEventListener('click', (event) => {
         surroundRange.setStart(node, rangeStart);
         surroundRange.setEnd(node, rangeEnd);
         surroundRange.surroundContents(surroundParent);
-
-
-    // if (i === 0) { // offset first highlight
-    //     let surroundRange = new Range();
-    //     surroundRange.setStart(node, selection.anchorOffset);
-    //     surroundRange.setEnd(node, node.length);
-    //     let surroundParent = document.createElement('span');
-    //     surroundParent.style.backgroundColor = 'yellow';
-    //     surroundParent.style.display = 'inline';
-    //     surroundRange.surroundContents(surroundParent);
-    //     continue;
-    // } else if (i === allNodes.length - 1) { // offset last highlight
-    //     let surroundRange = new Range();
-    //     surroundRange.setStart(node, 0);
-    //     surroundRange.setEnd(node, selection.focusOffset);
-    //     let surroundParent = document.createElement('span');
-    //     surroundParent.style.backgroundColor = 'yellow';
-    //     surroundParent.style.display = 'inline';
-    //     surroundRange.surroundContents(surroundParent);
-    //     continue;
-    // }
-    // let parent = node.parentNode;
-    // let index = Array.prototype.indexOf.call(parent.childNodes,  node);
-    // let surroundRange = new Range();
-    // surroundRange.setStart(parent, index);
-    // surroundRange.setEnd(parent, index + 1);
-    // let surroundParent = document.createElement('span');
-    // surroundParent.style.backgroundColor = 'yellow';
-    // surroundParent.style.display = 'inline';
-    // surroundRange.surroundContents(surroundParent);
-
     }
     selection.removeAllRanges();
 });
